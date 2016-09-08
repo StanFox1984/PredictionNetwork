@@ -1657,7 +1657,7 @@ def run_all_tests():
 #      classifierTest()
 #      logicTest2()
 #      classifierTest2()
-    s = mystdout.getvalue()
+#    s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
 #    finally:
