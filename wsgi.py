@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import os
-from predict import run_all_tests
+from pppredict import run_all_tests
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
 try:
