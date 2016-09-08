@@ -12,6 +12,8 @@ from threading import Thread
 from multiprocessing.managers import BaseManager
 from multiprocessing import Pool
 from tinythreadpool import TinyThreadPool
+from cStringIO import StringIO
+import sys
 
 class ProbTree:
     probnodes = {}
@@ -1643,14 +1645,23 @@ def predict_thread(p, f, f2):
       f2.flush()
 
 def run_all_tests():
-    linearTest()
-    periodicTest()
-    periodicRandTest()
-    logicTest()
-    classifierTest()
-    logicTest2()
-    classifierTest2()
-    return "RUN"
+    old_stdout = sys.stdout
+    s = ""
+    try:
+      sys.stdout = mystdout = StringIO()
+      linearTest()
+      periodicTest()
+      periodicRandTest()
+      logicTest()
+      classifierTest()
+      logicTest2()
+      classifierTest2()
+      s = mystdout.read()
+    except e:
+      print "Exception!"
+    finally:
+      sys.stdout = old.stdout
+    return s
 
 if __name__ == "__main__":
 #    Y = [ [1.0 ], [ 1.0 ], [ 2.0 ],  [ 2.0 ], [ 0.0 ], [ 1.0 ], [1.0] ]
