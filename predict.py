@@ -1646,18 +1646,18 @@ def predict_thread(p, f, f2):
 
 def run_all_tests():
     oldstdout = sys.stdout
-    s = "dsdsdsds"
+#    s = "dsdsdsds"
 #    try:
     mystdout = StringIO()
     sys.stdout = mystdout
-    print "sdsds"
-#      linearTest()
-#      periodicTest()
-#      periodicRandTest()
-#      logicTest()
-#      classifierTest()
-#      logicTest2()
-#      classifierTest2()
+#    print "sdsds"
+    linearTest()
+    periodicTest()
+    periodicRandTest()
+    logicTest()
+    classifierTest()
+    logicTest2()
+    classifierTest2()
     s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
