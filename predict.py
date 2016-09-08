@@ -1651,7 +1651,7 @@ def run_all_tests():
     oldstdout = sys.stdout
 #    s = "dsdsdsds"
 #    try:
-    mystdout = StringIO()
+    mystdout = StringIO(newline="\r\n")
     sys.stdout = mystdout
 #    print "sdsds"
 #    linearTest()
