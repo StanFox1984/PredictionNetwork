@@ -15,7 +15,7 @@ except IOError:
 
 def application(environ, start_response):
     s = ""
-    s = predict.run_all_tests()
+    predict.run_all_tests()
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
