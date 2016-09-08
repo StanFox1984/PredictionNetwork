@@ -1513,14 +1513,17 @@ def logicTest2():
     _classes = [ ]
     print "Logic test begin"
     p3 = Predictor(1, Wout, 3, step, 1000000)
-    return
+    print "Predictor created"
     X.append([ 0, 1, 1, 0, 0, 1, 1, 0])
     Y.append([ 1, 0, 0, 0, 0, 0, 0, 0])
     X.append([ 1, 0, 0, 1, 1, 0, 0, 1])
     Y.append([ 0, 0, 0, 0, 0, 0, 0, 1])
     X.append([ 1, 0, 1, 1, 1, 1, 0, 1])
     Y.append([ 0, 1, 1, 1, 1, 1, 1, 0])
+    print "Before study"
     p3.study(X, Y)
+    print "After study"
+    return
     Yout = [ ]
     P = [ ]
     p3.classificator.print_info()
