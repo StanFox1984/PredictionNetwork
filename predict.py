@@ -1657,10 +1657,10 @@ def run_all_tests():
 #    linearTest()
 #    periodicTest()
 #    periodicRandTest()
-#    logicTest()
-#    classifierTest()
+    logicTest()
+    classifierTest()
     logicTest2()
-#    classifierTest2()
+    classifierTest2()
     s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
