@@ -1521,7 +1521,7 @@ def logicTest2():
     X.append([ 1, 0, 1, 1, 1, 1, 0, 1])
     Y.append([ 0, 1, 1, 1, 1, 1, 1, 0])
     print "Before study"
-    p3.study(X, Y)
+  #  p3.study(X, Y)
     print "After study"
     return
     Yout = [ ]
