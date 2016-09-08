@@ -12,7 +12,7 @@ from threading import Thread
 from multiprocessing.managers import BaseManager
 from multiprocessing import Pool
 from tinythreadpool import TinyThreadPool
-from cStringIO import StringIO
+from StringIO import StringIO
 import sys
 
 class ProbTree:
@@ -1648,7 +1648,7 @@ def run_all_tests():
 #    old_stdout = sys.stdout
     s = "dsdsdsds"
 #    try:
-#    sys.stdout = mystdout = StringIO()
+    sys.stdout = mystdout = StringIO()
     print "sdsds"
 #      linearTest()
 #      periodicTest()
@@ -1657,11 +1657,11 @@ def run_all_tests():
 #      classifierTest()
 #      logicTest2()
 #      classifierTest2()
-#      s = mystdout.read()
+    s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
 #    finally:
-#      sys.stdout = old.stdout
+    sys.stdout = old.stdout
     return s
 
 if __name__ == "__main__":
