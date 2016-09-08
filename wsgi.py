@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import os
-
+from predict import run_all_tests
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
 try:
@@ -13,7 +13,7 @@ except IOError:
 #
 
 def application(environ, start_response):
-
+    print predict.run_all_tests()
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"

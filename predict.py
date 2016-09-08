@@ -1642,6 +1642,16 @@ def predict_thread(p, f, f2):
       f2.write(str(Y)+"\n")
       f2.flush()
 
+def run_all_tests():
+    linearTest()
+    periodicTest()
+    periodicRandTest()
+    logicTest()
+    classifierTest()
+    logicTest2()
+    classifierTest2()
+    return "RUN"
+
 if __name__ == "__main__":
 #    Y = [ [1.0 ], [ 1.0 ], [ 2.0 ],  [ 2.0 ], [ 0.0 ], [ 1.0 ], [1.0] ]
 #    Y = [ [ 1.0 ], [ 2.0 ],  [ 2.0 ]]
@@ -1697,10 +1707,10 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-#    linearTest()
-#    periodicTest()
-#    periodicRandTest()
-#    logicTest()
+    linearTest()
+    periodicTest()
+    periodicRandTest()
+    logicTest()
     classifierTest()
     logicTest2()
     classifierTest2()
