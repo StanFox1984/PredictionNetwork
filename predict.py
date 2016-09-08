@@ -1534,8 +1534,8 @@ def logicTest2():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
-    p3.neural.pool.wait_ready()
-    p3.neural.pool.stop()
+#    p3.neural.pool.wait_ready()
+#    p3.neural.pool.stop()
 
 
 def study_thread(p, f):
