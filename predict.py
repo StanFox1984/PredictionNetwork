@@ -1651,13 +1651,13 @@ def run_all_tests():
     mystdout = StringIO()
     sys.stdout = mystdout
 #    print "sdsds"
-    linearTest()
-    periodicTest()
-    periodicRandTest()
-    logicTest()
-    classifierTest()
+#    linearTest()
+#    periodicTest()
+#    periodicRandTest()
+#    logicTest()
+#    classifierTest()
     logicTest2()
-    classifierTest2()
+#    classifierTest2()
     s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
