@@ -1520,6 +1520,7 @@ def logicTest2():
     X.append([ 1, 0, 1, 1, 1, 1, 0, 1])
     Y.append([ 0, 1, 1, 1, 1, 1, 1, 0])
     p3.study(X, Y)
+    return
     Yout = [ ]
     P = [ ]
     p3.classificator.print_info()
