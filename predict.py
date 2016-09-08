@@ -1654,10 +1654,10 @@ def run_all_tests():
     mystdout = StringIO()
     sys.stdout = mystdout
 #    print "sdsds"
-    linearTest()
-    periodicTest()
-    periodicRandTest()
-    logicTest()
+#    linearTest()
+#    periodicTest()
+#    periodicRandTest()
+#    logicTest()
     classifierTest()
     logicTest2()
     classifierTest2()
