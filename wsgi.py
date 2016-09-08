@@ -232,7 +232,7 @@ pre {
 <body>
 ''' + s + '
 </body>
-</html>'''
+</html>'
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #
