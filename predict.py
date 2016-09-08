@@ -713,7 +713,7 @@ def createNetworkForNode(node_addr, _authkey, W0, num_layers, step = None, max_i
 
 
 class NeuralLinearComposedNetwork:
-    def __init__(self, points_per_network, W0, num_layers, step = None, max_iterations = 10, parallelize = True, sp = 1):
+    def __init__(self, points_per_network, W0, num_layers, step = None, max_iterations = 10, parallelize = False, sp = 1):
       self.networks = [ ]
       self.W0 = W0
       self.num_layers = num_layers
