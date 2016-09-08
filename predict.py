@@ -1512,8 +1512,8 @@ def logicTest2():
     step = [ 0.01, 0.01,0.01, 0.01,0.01, 0.01,0.01, 0.01 ]
     _classes = [ ]
     print "Logic test begin"
-    return
     p3 = Predictor(1, Wout, 3, step, 1000000)
+    return
     X.append([ 0, 1, 1, 0, 0, 1, 1, 0])
     Y.append([ 1, 0, 0, 0, 0, 0, 0, 0])
     X.append([ 1, 0, 0, 1, 1, 0, 0, 1])
