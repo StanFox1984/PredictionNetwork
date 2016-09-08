@@ -1645,10 +1645,11 @@ def predict_thread(p, f, f2):
       f2.flush()
 
 def run_all_tests():
-#    old_stdout = sys.stdout
+    oldstdout = sys.stdout
     s = "dsdsdsds"
 #    try:
-    sys.stdout = mystdout = StringIO()
+    mystdout = StringIO()
+    sys.stdout = mystdout
     print "sdsds"
 #      linearTest()
 #      periodicTest()
@@ -1661,7 +1662,7 @@ def run_all_tests():
 #    except e:
 #      print "Exception!"
 #    finally:
-    sys.stdout = old.stdout
+    sys.stdout = oldstdout
     return s
 
 if __name__ == "__main__":
