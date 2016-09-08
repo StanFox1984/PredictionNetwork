@@ -1523,7 +1523,6 @@ def logicTest2():
     print "Before study"
     p3.study(X, Y)
     print "After study"
-    return
     Yout = [ ]
     P = [ ]
     p3.classificator.print_info()
