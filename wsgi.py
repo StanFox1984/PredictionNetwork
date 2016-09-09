@@ -13,18 +13,31 @@ except IOError:
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
 #
+predictor_array = [ ]
 s = ""
 def application(environ, start_response):
+    global predictor_array
     global s
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/tests':
         s = predict.run_all_tests()
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
-    if environ['PATH_INFO'] == '/predict':
+        ctype = 'text/html'
+        s = s.replace("\n"," <br> ")
+        s = s.replace("\r"," <br> ")
+        response_body = '<html><body>' + s + '</body></html>'
+    if environ['PATH_INFO'] == '/predict_create':
         s += environ['QUERY_STRING']
         d = parse_qs(s)
         s += str(d)
+        Wout = eval(d["W"])
+        step = eval(d["step"])
+        p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
+        ctype = 'text/html'
+        s = s.replace("\n"," <br> ")
+        s = s.replace("\r"," <br> ")
+        response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/env':
