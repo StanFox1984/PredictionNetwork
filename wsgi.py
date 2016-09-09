@@ -19,6 +19,7 @@ def application(environ, start_response):
     s = s.replace("\n"," <br> ")
     s = s.replace("\r"," <br> ")
     ctype = 'text/plain'
+    s += environ['QUERY_STRING']
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/env':
