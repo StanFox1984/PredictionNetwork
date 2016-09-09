@@ -35,7 +35,7 @@ def application(environ, start_response):
         s += str(d)
         for i in d:
           s+=str(i)+" "+str(d[i])
-#        s += d["W"]
+        s += d.get("W")
 #        s += d["step"]
 #       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
         ctype = 'text/html'
