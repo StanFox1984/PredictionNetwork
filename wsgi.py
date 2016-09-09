@@ -2,6 +2,7 @@
 import os
 import predict
 from predict import run_all_tests
+from cgi import parse_qs
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
 try:
@@ -14,12 +15,17 @@ except IOError:
 #
 
 def application(environ, start_response):
-    s = ""
-    s = predict.run_all_tests()
-    s = s.replace("\n"," <br> ")
-    s = s.replace("\r"," <br> ")
+
     ctype = 'text/plain'
-    s += environ['QUERY_STRING']
+    s = ""
+    if environ['PATH_INFO'] == '/tests':
+        s = predict.run_all_tests()
+        s = s.replace("\n"," <br> ")
+        s = s.replace("\r"," <br> ")
+    if environ['PATH_INFO'] == '/predict':
+        s = environ['QUERY_STRING']
+        d = parse_qs(s)
+        s+= str(d)
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/env':
