@@ -15,7 +15,7 @@ except IOError:
 #
 s = ""
 def application(environ, start_response):
-
+    global s
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/tests':
         s = predict.run_all_tests()
