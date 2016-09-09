@@ -32,8 +32,8 @@ def application(environ, start_response):
         s += environ['QUERY_STRING']
         d = parse_qs(s)
         s += str(d)
-        Wout = eval(d["W"])
-        step = eval(d["step"])
+#        Wout = eval(d["W"])
+#        step = eval(d["step"])
 #       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
