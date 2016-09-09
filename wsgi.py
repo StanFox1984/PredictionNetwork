@@ -2,6 +2,7 @@
 import os
 import predict
 from predict import run_all_tests
+from predict import Predictor
 from cgi import parse_qs
 virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
@@ -33,7 +34,7 @@ def application(environ, start_response):
         s += str(d)
         Wout = eval(d["W"])
         step = eval(d["step"])
-        p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
+#       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
