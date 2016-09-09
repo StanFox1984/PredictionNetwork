@@ -1372,8 +1372,8 @@ def linearTest():
     print "Y:", Y
     print "X:", X
     print "Linear test end"
-    p.neural.pool.wait_ready()
-    p.neural.pool.stop()
+    #p.neural.pool.wait_ready()
+    #p.neural.pool.stop()
 
 def periodicTest():
     P = [ ]
@@ -1403,8 +1403,8 @@ def periodicTest():
     print "X: ", X
     print "####"
     print "Periodic(sin) test end"
-    p2.neural.pool.wait_ready()
-    p2.neural.pool.stop()
+    #p2.neural.pool.wait_ready()
+    #p2.neural.pool.stop()
 
 def periodicRandTest():
     P = [ ]
@@ -1429,8 +1429,8 @@ def periodicRandTest():
     print "X: ", X
     print "####"
     print "Periodic(sin) test end"
-    p2.neural.pool.wait_ready()
-    p2.neural.pool.stop()
+    #p2.neural.pool.wait_ready()
+    #p2.neural.pool.stop()
 
 def logicTest():
     P = [ ]
@@ -1497,8 +1497,8 @@ def logicTest():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
-    p3.neural.pool.wait_ready()
-    p3.neural.pool.stop()
+    #p3.neural.pool.wait_ready()
+    #p3.neural.pool.stop()
 
 def logicTest2():
     P = [ ]
@@ -1654,10 +1654,10 @@ def run_all_tests():
     mystdout = StringIO()
     sys.stdout = mystdout
 #    print "sdsds"
-#    linearTest()
-#    periodicTest()
-#    periodicRandTest()
-#    logicTest()
+    linearTest()
+    periodicTest()
+    periodicRandTest()
+    logicTest()
     classifierTest()
     logicTest2()
     classifierTest2()
