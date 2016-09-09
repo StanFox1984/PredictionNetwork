@@ -13,19 +13,18 @@ except IOError:
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
 #
-
+s = ""
 def application(environ, start_response):
 
     ctype = 'text/plain'
-    s = ""
     if environ['PATH_INFO'] == '/tests':
         s = predict.run_all_tests()
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
     if environ['PATH_INFO'] == '/predict':
-        s = environ['QUERY_STRING']
+        s += environ['QUERY_STRING']
         d = parse_qs(s)
-        s+= str(d)
+        s += str(d)
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
     elif environ['PATH_INFO'] == '/env':
