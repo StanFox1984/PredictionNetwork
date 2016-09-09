@@ -30,6 +30,7 @@ def application(environ, start_response):
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_create':
         s += environ['QUERY_STRING']
+        s = s.replace("%20"," ")
         d = parse_qs(s)
         s += str(d)
 #        Wout = eval(d["W"])
