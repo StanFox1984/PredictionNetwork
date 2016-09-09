@@ -1657,7 +1657,7 @@ def run_all_tests():
 #    linearTest()
 #    periodicTest()
 #    periodicRandTest()
-    logicTest()
+#    logicTest()
     classifierTest()
     logicTest2()
     classifierTest2()
