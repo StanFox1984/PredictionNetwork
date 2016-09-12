@@ -34,7 +34,8 @@ def application(environ, start_response):
         d = parse_qs(s)
         s += str(d)
         for i in d:
-          s+=i+" "+str+(d[i])+"W diff: "+str(int(i)^int('W'))
+          if len(i) <= 2:
+            s+=i+" "+str+(d[i])+"W diff: "+str(int(i)^int('W'))
         s += " W "
 #        s += d["step"]
 #       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
