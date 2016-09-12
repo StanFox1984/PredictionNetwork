@@ -58,7 +58,7 @@ def application(environ, start_response):
         Wout = eval(d["W"][0])
         step = eval(d["step"][0])
 #        n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-        s+=" Predictor created "+ str(n)
+#        s+=" Predictor created "+ str(n)
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
