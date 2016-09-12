@@ -33,12 +33,9 @@ def application(environ, start_response):
         s = s.replace("%20"," ")
         d = parse_qs(s)
         s += str(d)
-        for i in d:
-          if len(str(i)) <= 2:
-            s+=i+" "+str+(d[i])+"W diff: "+str(int(i)-int('W'))
-        s += " W "
-#        s += d["step"]
-#       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
+        Wout = eval(d["W"][0])
+        step = eval(d["step"])
+        p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"]))
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
