@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import predict
+from random import randint
 from predict import run_all_tests
 from predict import Predictor
 from cgi import parse_qs
@@ -14,11 +15,31 @@ except IOError:
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
 #
-predictor_array = [ ]
+
+class PredictorAllocator:
+    def __init__(self, n1, n2):
+      self.predictor_array = { }
+      self.n1 = n1
+      self.n2 = n2
+    def allocate(self, points_per_network, W, num_layers, step, max_iterations):
+      n = randint(n1,n2)
+      while n in self.predictor_array:
+        n = randint(n1,n2)
+        self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
+      return n
+    def getPredictor(self, n):
+      return self.predictor_array[n]
+    def deallocate(self, n):
+      del self.predictor_array[n]
+
 s = ""
+
+predictorAllocator = PredictorAllocator(0,100)
+
 def application(environ, start_response):
-    global predictor_array
+    global predictorAllocator
     global s
+    glo
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/tests':
         s = predict.run_all_tests()
@@ -36,8 +57,8 @@ def application(environ, start_response):
         s += d["W"][0]
         Wout = eval(d["W"][0])
         step = eval(d["step"][0])
-        p = Predictor(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-        s+=" Predictor created "
+        n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+        s+=" Predictor created "+ str(n)
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
