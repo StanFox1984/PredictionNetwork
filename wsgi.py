@@ -41,7 +41,7 @@ def application(environ, start_response):
     global s
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/tests':
-        s = predict.run_all_tests()
+        s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
         ctype = 'text/html'
@@ -50,6 +50,7 @@ def application(environ, start_response):
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
         s += str(predictorAllocator.predictor_array)
+        s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
         s += environ['QUERY_STRING']
         s = s.replace("%20"," ")
