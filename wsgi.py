@@ -54,9 +54,9 @@ def application(environ, start_response):
         s += str(predictorAllocator.predictor_array)
         s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
-        s += environ['QUERY_STRING']
-        s = s.replace("%20"," ")
-        d = parse_qs(s)
+        s1 = environ['QUERY_STRING']
+        s1 = s1.replace("%20"," ")
+        d = parse_qs(s1)
 #        s += str(d)
 #        s += d["W"][0]
         Wout = eval(d["W"][0])
@@ -68,9 +68,9 @@ def application(environ, start_response):
         s = s.replace("\r"," <br> ")
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_remove':
-        s += environ['QUERY_STRING']
-        s = s.replace("%20"," ")
-        d = parse_qs(s)
+        s1 = environ['QUERY_STRING']
+        s1 = s1.replace("%20"," ")
+        d = parse_qs(s1)
         predictor.Allocator.deallocate(int(d["n"][0]))
         s+=" Predictor removed "+ d["n"][0]
         ctype = 'text/html'
