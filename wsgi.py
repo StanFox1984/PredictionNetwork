@@ -22,9 +22,9 @@ class PredictorAllocator:
       self.n1 = n1
       self.n2 = n2
     def allocate(self, points_per_network, W, num_layers, step, max_iterations):
-      n = randint(n1,n2)
+      n = randint(self.n1,self.n2)
       while n in self.predictor_array:
-        n = randint(n1,n2)
+        n = randint(self.n1,self.n2)
         self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
       return n
     def getPredictor(self, n):
