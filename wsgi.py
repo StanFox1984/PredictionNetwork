@@ -54,6 +54,7 @@ def application(environ, start_response):
         s += str(predictorAllocator.predictor_array)
         s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
+        s += str(os.getpid())
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
