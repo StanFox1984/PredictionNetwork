@@ -36,7 +36,8 @@ def application(environ, start_response):
         s += d["W"][0]
         Wout = eval(d["W"][0])
         step = eval(d["step"][0])
-        p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"]))
+        p = Predictor(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+        s+=" Predictor created "
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
