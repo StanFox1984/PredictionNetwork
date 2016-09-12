@@ -35,6 +35,8 @@ def application(environ, start_response):
         s += str(d)
         for i in d:
           s+=i+" "+str(d[i])
+          if i == "W":
+            s+="this is W!"
         s += " W "
 #        s += d["step"]
 #       p = Predictor(int(d["points_per_network"]), Wout, int(d["num_layers"]), step, int(d["max_iterations"]))
