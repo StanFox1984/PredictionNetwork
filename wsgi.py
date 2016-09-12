@@ -40,7 +40,7 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-#    s+=str(os.getpid())
+
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -50,6 +50,7 @@ def application(environ, start_response):
         s = s.replace("\r"," <br> ")
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
+        s += str(os.getpid())
         s += str(predictorAllocator.predictor_array)
         s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
