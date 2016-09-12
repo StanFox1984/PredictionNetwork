@@ -40,7 +40,9 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-    s = ""
+    if 's' not in environ:
+        environ['s'] = ""
+    s = environ['s']
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
