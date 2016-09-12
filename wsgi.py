@@ -40,9 +40,6 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-    if 's' not in environ:
-        environ['s'] = ""
-    s = environ['s']
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -100,4 +97,5 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
     httpd = make_server('localhost', 8051, application)
     # Wait for a single request, serve it and quit.
-    httpd.handle_request()
+    while True:
+      httpd.handle_request()
