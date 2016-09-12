@@ -18,7 +18,7 @@ except IOError:
 
 class PredictorAllocator:
     def __init__(self, n1, n2):
-      self.predictor_array = { }
+      self.predictor_array = {}
       self.n1 = n1
       self.n2 = n2
     def allocate(self, points_per_network, W, num_layers, step, max_iterations):
@@ -39,7 +39,6 @@ predictorAllocator = PredictorAllocator(0,100)
 def application(environ, start_response):
     global predictorAllocator
     global s
-    glo
     ctype = 'text/plain'
     if environ['PATH_INFO'] == '/tests':
         s = predict.run_all_tests()
