@@ -11,6 +11,8 @@ try:
     execfile(virtualenv, dict(__file__=virtualenv))
 except IOError:
     pass
+
+from multiprocessing.managers import BaseManager
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -33,6 +35,12 @@ class PredictorAllocator:
       del self.predictor_array[n]
 
 s = ""
+
+class PredictorManager(BaseManager):
+    pass
+
+PredictorManager.register('PManager', PredictorAllocator)
+
 
 predictorAllocator = PredictorAllocator(0,100)
 
@@ -93,12 +101,18 @@ def application(environ, start_response):
     start_response(status, response_headers)
     return [response_body]
 
+from wsgiref.handlers import SimpleHandler
+
+class MyHandler(SimpleHandler):
+  def __init__(self, stdin, stdout, stderr, environ, multithread=True, multiprocess=False):
+    SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
+
 #
 # Below for testing only
 #
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
-    httpd = make_server('localhost', 8051, application)
+
+    httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
-    while True:
-      httpd.handle_request()
+    httpd.serve_forever()
