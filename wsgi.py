@@ -44,16 +44,16 @@ class PredictorManager(BaseManager):
 PredictorManager.register('PManager', PredictorAllocator)
 
 
-predictorAllocator = PredictorAllocator(0,100)
+#predictorAllocator = PredictorAllocator(0,100)
 
-#predictorAllocator = None
+predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-#    pmanager = PredictorManager(address=('',50000), authkey='')
-#    pmanager.connect()
+    pmanager = PredictorManager(address=('',50000), authkey='')
+    pmanager.connect()
 #    predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
