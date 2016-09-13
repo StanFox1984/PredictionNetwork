@@ -56,7 +56,7 @@ def application(environ, start_response):
       PredictorManager.register('PManager', PredictorAllocator)
       pmanager = PredictorManager(address=('',50000), authkey='')
       pmanager.connect()
-      predictorAllocator = pmanager.PManager()
+#      predictorAllocator = pmanager.PManager()
     except e:
       s+=str(e)
     except:
