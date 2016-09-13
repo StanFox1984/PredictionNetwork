@@ -121,8 +121,8 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
     pmanager = PredictorManager(address=('',50000), authkey='')
     s = pmanager.get_server()
-#    p = Process(target=s.serve_forever, args=())
-#    p.start()
+    p = Process(target=s.serve_forever, args=())
+    p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
