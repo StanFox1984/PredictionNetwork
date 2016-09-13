@@ -52,8 +52,11 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-    PredictorManager.register('PManager', PredictorAllocator)
-    pmanager = PredictorManager(address=('',50000), authkey='')
+    try:
+      PredictorManager.register('PManager', PredictorAllocator)
+      pmanager = PredictorManager(address=('',50000), authkey='')
+    except e:
+      s+=str(e)
 #    pmanager.connect()
 #    predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
