@@ -43,10 +43,10 @@ class PredictorManager(BaseManager):
 
 PredictorManager.register('PManager', PredictorAllocator)
 
+pmanager = None
+#predictorAllocator = PredictorAllocator(0,100)
 
-predictorAllocator = PredictorAllocator(0,100)
-
-#predictorAllocator = None
+predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
@@ -54,13 +54,11 @@ def application(environ, start_response):
     ctype = 'text/plain'
     try:
       PredictorManager.register('PManager', PredictorAllocator)
-      pmanager = PredictorManager("file", authkey='')
-      pmanager.connect()
-#      predictorAllocator = pmanager.PManager()
-    except e:
-      s+=str(e)
     except:
-      s+="Some error happened"
+      pass
+    if predictorAllocator == None:
+      predictorAllocator = pmanager.PManager()
+
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -119,16 +117,16 @@ class MyHandler(SimpleHandler):
   def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
 
+
 #
 # Below for testing only
 #
 if __name__ == '__main__':
     global predictorAllocator
+    global pmanager
     from wsgiref.simple_server import make_server
-    pmanager = PredictorManager('file', authkey='')
-    s = pmanager.get_server()
-    p = Process(target=s.serve_forever, args=())
-    p.start()
+    pmanager = PredictorManager()
+    pmanager.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
