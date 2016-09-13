@@ -13,13 +13,15 @@ except IOError:
     pass
 
 from multiprocessing.managers import BaseManager
+from multiprocessing import Process, Queue
+
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
 #
 
 class PredictorAllocator:
-    def __init__(self, n1, n2):
+    def __init__(self, n1=0, n2=100):
       self.predictor_array = {}
       self.n1 = n1
       self.n2 = n2
@@ -42,7 +44,9 @@ class PredictorManager(BaseManager):
 PredictorManager.register('PManager', PredictorAllocator)
 
 
-predictorAllocator = PredictorAllocator(0,100)
+#predictorAllocator = PredictorAllocator(0,100)
+
+predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
@@ -111,8 +115,14 @@ class MyHandler(SimpleHandler):
 # Below for testing only
 #
 if __name__ == '__main__':
+    global predictorAllocator
     from wsgiref.simple_server import make_server
-
+    pmanager = PredictorManager()
+    pmanager.start()
+    predictorAllocator = pmanager.PManager()
+    s = predictorAllocator.get_server()
+    p = Process(target=s.serve_forever, args=(pm,))
+    p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
