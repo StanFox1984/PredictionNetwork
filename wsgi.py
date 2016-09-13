@@ -53,7 +53,7 @@ def application(environ, start_response):
     global s
     ctype = 'text/plain'
     pmanager = PredictorManager(address=('',50000), authkey='')
-    pmanager.connect()
+#    pmanager.connect()
 #    predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
