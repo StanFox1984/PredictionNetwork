@@ -44,17 +44,17 @@ class PredictorManager(BaseManager):
 PredictorManager.register('PManager', PredictorAllocator)
 
 
-#predictorAllocator = PredictorAllocator(0,100)
+predictorAllocator = PredictorAllocator(0,100)
 
-predictorAllocator = None
+#predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-    pmanager = PredictorManager(address=('',50000), authkey='')
-    pmanager.connect()
-    predictorAllocator = pmanager.PManager()
+#    pmanager = PredictorManager(address=('',50000), authkey='')
+#    pmanager.connect()
+#    predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -121,8 +121,8 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
     pmanager = PredictorManager(address=('',50000), authkey='')
     s = pmanager.get_server()
-    p = Process(target=s.serve_forever, args=())
-    p.start()
+#    p = Process(target=s.serve_forever, args=())
+#    p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
