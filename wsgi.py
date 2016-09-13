@@ -52,7 +52,8 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-
+    s += str(predictorAllocator)
+    s += str(pmanager)
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
