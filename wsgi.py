@@ -52,6 +52,7 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
+    PredictorManager.register('PManager', PredictorAllocator)
     pmanager = PredictorManager(address=('',50000), authkey='')
 #    pmanager.connect()
 #    predictorAllocator = pmanager.PManager()
