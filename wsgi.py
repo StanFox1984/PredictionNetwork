@@ -104,7 +104,7 @@ def application(environ, start_response):
 from wsgiref.handlers import SimpleHandler
 
 class MyHandler(SimpleHandler):
-  def __init__(self, stdin, stdout, stderr, environ, multithread=True, multiprocess=False):
+  def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
 
 #
