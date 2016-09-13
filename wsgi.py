@@ -54,7 +54,7 @@ def application(environ, start_response):
     ctype = 'text/plain'
     try:
       PredictorManager.register('PManager', PredictorAllocator)
-      pmanager = PredictorManager(address=('',50000), authkey='')
+      pmanager = PredictorManager("file", authkey='')
       pmanager.connect()
 #      predictorAllocator = pmanager.PManager()
     except e:
@@ -125,7 +125,7 @@ class MyHandler(SimpleHandler):
 if __name__ == '__main__':
     global predictorAllocator
     from wsgiref.simple_server import make_server
-    pmanager = PredictorManager(address=('',50000), authkey='')
+    pmanager = PredictorManager('file', authkey='')
     s = pmanager.get_server()
     p = Process(target=s.serve_forever, args=())
     p.start()
