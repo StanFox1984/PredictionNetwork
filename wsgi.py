@@ -121,8 +121,8 @@ if __name__ == '__main__':
     pmanager.start()
     predictorAllocator = pmanager.PManager()
     s = predictorAllocator.get_server()
-    p = Process(target=s.serve_forever, args=(predictorAllocator,))
-    p.start()
+    #p = Process(target=s.serve_forever, args=(predictorAllocator,))
+    #p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
