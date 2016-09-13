@@ -55,10 +55,12 @@ def application(environ, start_response):
     try:
       PredictorManager.register('PManager', PredictorAllocator)
       pmanager = PredictorManager(address=('',50000), authkey='')
+      pmanager.connect()
+      predictorAllocator = pmanager.PManager()
     except e:
       s+=str(e)
-#    pmanager.connect()
-#    predictorAllocator = pmanager.PManager()
+#
+#    
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
