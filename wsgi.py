@@ -52,12 +52,6 @@ def application(environ, start_response):
     global predictorAllocator
     global s
     ctype = 'text/plain'
-    try:
-      PredictorManager.register('PManager', PredictorAllocator)
-    except:
-      pass
-    if predictorAllocator == None:
-      predictorAllocator = pmanager.PManager()
 
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
@@ -117,6 +111,11 @@ class MyHandler(SimpleHandler):
   def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
 
+from time import sleep
+
+def func(predictorAllocator):
+  while True:
+    sleep(1)
 
 #
 # Below for testing only
@@ -126,7 +125,9 @@ if __name__ == '__main__':
     global pmanager
     from wsgiref.simple_server import make_server
     pmanager = PredictorManager()
-    pmanager.start()
+    predictorAllocator = pmanager.PManager()
+    p = Process(target=func, args=(predictorAllocator,))
+    p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
