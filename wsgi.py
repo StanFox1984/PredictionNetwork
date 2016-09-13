@@ -44,9 +44,9 @@ class PredictorManager(BaseManager):
 PredictorManager.register('PManager', PredictorAllocator)
 
 
-#predictorAllocator = PredictorAllocator(0,100)
+predictorAllocator = PredictorAllocator(0,100)
 
-predictorAllocator = None
+#predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
@@ -59,8 +59,8 @@ def application(environ, start_response):
       predictorAllocator = pmanager.PManager()
     except e:
       s+=str(e)
-#
-#    
+    except:
+      s+="Some error happened"
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
