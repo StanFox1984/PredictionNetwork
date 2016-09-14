@@ -31,6 +31,8 @@ class PredictorAllocator:
         n = randint(self.n1,self.n2)
         self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
       return n
+    def getArray(self):
+      return self.predictor_array
     def getPredictor(self, n):
       return self.predictor_array[n]
     def deallocate(self, n):
@@ -63,7 +65,7 @@ def applicatio(predictorAllocator, environ, start_response):
     if environ['PATH_INFO'] == '/predict_list':
         if predictorAllocator != None:
           s += str(os.getpid())
-          s += str(predictorAllocator.predictor_array)
+          s += str(predictorAllocator.getArray())
           s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
         if predictorAllocator != None:
@@ -76,7 +78,7 @@ def applicatio(predictorAllocator, environ, start_response):
           Wout = eval(d["W"][0])
           step = eval(d["step"][0])
           n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-          s+=" Predictor created "+ str(n) + str(predictorAllocator.predictor_array)
+          s+=" Predictor created "+ str(n) + str(predictorAllocator.getArray())
           ctype = 'text/html'
           s = s.replace("\n"," <br> ")
           s = s.replace("\r"," <br> ")
@@ -85,7 +87,7 @@ def applicatio(predictorAllocator, environ, start_response):
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
-        predictor.Allocator.deallocate(int(d["n"][0]))
+        predictorAllocator.deallocate(int(d["n"][0]))
         s+=" Predictor removed "+ d["n"][0]
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
