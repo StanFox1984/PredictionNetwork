@@ -61,24 +61,26 @@ def applicatio(predictorAllocator, environ, start_response):
         s = s.replace("\r"," <br> ")
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
-        s += str(os.getpid())
-        s += str(predictorAllocator.predictor_array)
-        s += str(predictorAllocator)
+        if predictorAllocator != None:
+          s += str(os.getpid())
+          s += str(predictorAllocator.predictor_array)
+          s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
-        s += str(os.getpid())
-        s1 = environ['QUERY_STRING']
-        s1 = s1.replace("%20"," ")
-        d = parse_qs(s1)
+        if predictorAllocator != None:
+          s += str(os.getpid())
+          s1 = environ['QUERY_STRING']
+          s1 = s1.replace("%20"," ")
+          d = parse_qs(s1)
 #        s += str(d)
 #        s += d["W"][0]
-        Wout = eval(d["W"][0])
-        step = eval(d["step"][0])
-        n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-        s+=" Predictor created "+ str(n) + str(predictorAllocator.predictor_array)
-        ctype = 'text/html'
-        s = s.replace("\n"," <br> ")
-        s = s.replace("\r"," <br> ")
-        response_body = '<html><body>' + s + '</body></html>'
+          Wout = eval(d["W"][0])
+          step = eval(d["step"][0])
+          n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+          s+=" Predictor created "+ str(n) + str(predictorAllocator.predictor_array)
+          ctype = 'text/html'
+          s = s.replace("\n"," <br> ")
+          s = s.replace("\r"," <br> ")
+          response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_remove':
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
