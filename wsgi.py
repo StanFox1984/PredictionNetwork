@@ -134,9 +134,9 @@ def application(environ, start_response):
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)
             s+=" Predict: "+ str(n) + str(X)
-            s+=str(P) + "\n"
-            s+=str(Yout) + "\n"
-            s+=str(_classes) + "\n"
+            s+="X:" + str(P) + "\n"
+            s+="Y:" + str(Yout) + "\n"
+            s+="Classes:" + str(_classes) + "\n"
           else:
             s+=" Not found" + str(n)
           ctype = 'text/html'
