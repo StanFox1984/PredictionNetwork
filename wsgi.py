@@ -128,7 +128,7 @@ pmanager = PredictorManager()
 
 serv = pmanager.get_server()
 
-application = MyAppClass(predictorAllocator)
+application = MyAppClass()
 
 #
 # Below for testing only
