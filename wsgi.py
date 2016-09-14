@@ -121,6 +121,7 @@ class MyAppClass:
     def __init__(self):
       self.predictorAllocator = None
     def __call__(self, environ, start_response):
+      print "me: ", self, self.predictorAllocator
       return applicatio(self.predictorAllocator, environ, start_response)
 
 PredictorManager.register('PManager', PredictorAllocator)
@@ -128,7 +129,7 @@ pmanager = PredictorManager()
 
 serv = pmanager.get_server()
 
-application = MyAppClass(predictorAllocator)
+application = MyAppClass()
 
 #
 # Below for testing only
@@ -143,5 +144,7 @@ if __name__ == '__main__':
     predictorAllocator = pmanager.PManager()
     application.predictorAllocator = predictorAllocator
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
+    print "app: ", application.predictorAllocator
+    print "app: ", application
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
