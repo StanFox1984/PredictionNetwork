@@ -42,9 +42,9 @@ class PredictorManager(BaseManager):
     pass
 
 
-pmanager = None
+#pmanager = None
 #predictorAllocator = PredictorAllocator(0,100)
-predictorAllocator = None
+#predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
@@ -115,6 +115,8 @@ from wsgiref.handlers import SimpleHandler
 class MyHandler(SimpleHandler):
   def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
+
+class 
 
 from time import sleep
 
