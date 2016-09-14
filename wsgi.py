@@ -56,8 +56,8 @@ def application(environ, start_response):
     PredictorManager.register('PManager', PredictorAllocator)
     if pmanager == None:
         pmanager = PredictorManager()
-#    if predictorAllocator == None:
-#        predictorAllocator = pmanager.PManager()
+    if predictorAllocator == None:
+        predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
