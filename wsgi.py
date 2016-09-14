@@ -29,7 +29,7 @@ class PredictorAllocator:
       n = randint(self.n1,self.n2)
       while n in self.predictor_array:
         n = randint(self.n1,self.n2)
-        self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
+      self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
       return n
     def getArray(self):
       return self.predictor_array
@@ -53,6 +53,7 @@ pmanager = None
 def applicatio(predictorAllocator, environ, start_response):
     global s
     ctype = 'text/plain'
+    s = ""
     s += str(predictorAllocator)
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
