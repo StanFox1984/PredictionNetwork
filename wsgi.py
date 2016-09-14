@@ -118,9 +118,8 @@ class MyHandler(SimpleHandler):
 
 from time import sleep
 
-def func(predictorAllocator):
-  while True:
-    sleep(1)
+def func(predictorAllocator, s):
+    s.serve_forever()
 
 #
 # Below for testing only
@@ -132,7 +131,8 @@ if __name__ == '__main__':
     PredictorManager.register('PManager', PredictorAllocator)
     pmanager = PredictorManager()
     predictorAllocator = pmanager.PManager()
-    p = Process(target=func, args=(predictorAllocator,))
+    s = pmanager.get_server()
+    p = Process(target=func, args=(predictorAllocator, s))
     p.start()
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
