@@ -129,10 +129,8 @@ class MyAppClass:
 PredictorManager.register('PManager', PredictorAllocator)
 pmanager = PredictorManager()
 
-serv = pmanager.get_server() 
-
-
-application = MyAppClass() 
+serv = pmanager.get_server()
+application = MyAppClass()
 
 #
 # Below for testing only
@@ -142,6 +140,7 @@ if __name__ == '__main__':
     global pmanager
     global application
     from wsgiref.simple_server import make_server
+    print "aaaaaa"
     p = Process(target=func, args=(predictorAllocator, serv))
     p.start()
     predictorAllocator = pmanager.PManager()
