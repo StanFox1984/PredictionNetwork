@@ -14,7 +14,7 @@ except IOError:
 
 from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
-
+import json
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -136,6 +136,7 @@ predictorAllocator = pmanager.PManager()
 application.predictorAllocator = predictorAllocator
 f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'w')
 f.write(str(os.getpid())) # python will convert \n to os.linesep
+f.write(str(json.dumps(predictorAllocator.__dict__)))
 f.close() # you can omit in most cases as the de
 
 #
