@@ -129,7 +129,7 @@ pmanager = PredictorManager()
 
 serv = pmanager.get_server()
 
-application = MyAppClass()
+application = MyAppClass() 
 
 #
 # Below for testing only
