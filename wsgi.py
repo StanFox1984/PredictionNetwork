@@ -115,8 +115,7 @@ class MyHandler(SimpleHandler):
 
 from time import sleep
 
-def func(predictorAllocator, s):
-    s.serve_forever()
+
 
 
 class MyAppClass:
@@ -128,11 +127,8 @@ class MyAppClass:
 
 PredictorManager.register('PManager', PredictorAllocator)
 pmanager = PredictorManager()
-
-serv = pmanager.get_server()
+pmanager.start()
 application = MyAppClass()
-p = Process(target=func, args=(predictorAllocator, serv))
-p.start()
 predictorAllocator = pmanager.PManager()
 application.predictorAllocator = predictorAllocator
 
