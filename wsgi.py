@@ -134,8 +134,8 @@ pmanager.start()
 application = MyAppClass()
 predictorAllocator = pmanager.PManager()
 application.predictorAllocator = predictorAllocator
-f = open(os.environ['OPENSHIFT_DATA_DIR'],'w')
-f.write('hi there\n') # python will convert \n to os.linesep
+f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'w')
+f.write(str(os.getpid())) # python will convert \n to os.linesep
 f.close() # you can omit in most cases as the de
 
 #
