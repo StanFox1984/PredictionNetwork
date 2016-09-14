@@ -48,7 +48,7 @@ pmanager = None
 
 
 
-def application(predictorAllocator, environ, start_response):
+def applicatio(predictorAllocator, environ, start_response):
     global s
     ctype = 'text/plain'
     s += str(predictorAllocator)
@@ -121,7 +121,7 @@ class MyAppClass:
     def __init__(self, predictorAllocator):
       self.predictorAllocator = predictorAllocator
     def __call__(self, environ, start_response):
-      return application(self.predictorAllocator, environ, start_response)
+      return applicatio(self.predictorAllocator, environ, start_response)
 
 #
 # Below for testing only
