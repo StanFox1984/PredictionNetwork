@@ -42,22 +42,16 @@ class PredictorManager(BaseManager):
     pass
 
 
-#pmanager = None
+pmanager = None
 #predictorAllocator = PredictorAllocator(0,100)
-#predictorAllocator = None
 
-def application(environ, start_response):
-    global predictorAllocator
-    global pmanager
+
+
+
+def application(predictorAllocator, environ, start_response):
     global s
     ctype = 'text/plain'
     s += str(predictorAllocator)
-    s += str(pmanager)
-    PredictorManager.register('PManager', PredictorAllocator)
-    if pmanager == None:
-        pmanager = PredictorManager()
-    if predictorAllocator == None:
-        predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -122,6 +116,13 @@ from time import sleep
 def func(predictorAllocator, s):
     s.serve_forever()
 
+
+class MyAppClass:
+    def __init__(self, predictorAllocator):
+      self.predictorAllocator = predictorAllocator
+    def __call__(self, environ, start_response):
+      return application(self.predictorAllocator, environ, start_response)
+
 #
 # Below for testing only
 #
@@ -135,6 +136,7 @@ if __name__ == '__main__':
     s = pmanager.get_server()
     p = Process(target=func, args=(predictorAllocator, s))
     p.start()
-    httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
+    app = MyAppClass(predictorAllocator)
+    httpd = make_server('localhost', 8051, app, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
