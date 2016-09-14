@@ -80,8 +80,8 @@ def application(environ, start_response):
           s1 += str(os.getpid())
           s1 += str(predictorAllocator.getArray())
           s1 += str(predictorAllocator)
-          s1.replace("<", " ")
-          s1.replace(">", " ")
+          s1 = s1.replace("<", " ")
+          s1 = s1.replace(">", " ")
           s+=s1
     if environ['PATH_INFO'] == '/predict_create':
         if predictorAllocator != None:
@@ -143,8 +143,8 @@ def application(environ, start_response):
             s1+="Classes:" + str(_classes) + "\n"
           else:
             s1+=" Not found" + str(n)
-          s1.replace("<", " ")
-          s1.replace(">", " ")
+          s1 = s1.replace("<", " ")
+          s1 =s1.replace(">", " ")
           s+=s1
           ctype = 'text/html'
           s = s.replace("\n"," <br> ")
