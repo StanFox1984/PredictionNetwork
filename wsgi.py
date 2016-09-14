@@ -41,7 +41,6 @@ s = ""
 class PredictorManager(BaseManager):
     pass
 
-PredictorManager.register('PManager', PredictorAllocator)
 
 pmanager = None
 #predictorAllocator = PredictorAllocator(0,100)
@@ -54,6 +53,7 @@ def application(environ, start_response):
     ctype = 'text/plain'
     s += str(predictorAllocator)
     s += str(pmanager)
+    PredictorManager.register('PManager', PredictorAllocator)
     if pmanager == None:
         pmanager = PredictorManager()
     if predictorAllocator == None:
@@ -129,6 +129,7 @@ if __name__ == '__main__':
     global predictorAllocator
     global pmanager
     from wsgiref.simple_server import make_server
+    PredictorManager.register('PManager', PredictorAllocator)
     pmanager = PredictorManager()
     predictorAllocator = pmanager.PManager()
     p = Process(target=func, args=(predictorAllocator,))
