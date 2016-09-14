@@ -131,6 +131,11 @@ pmanager = PredictorManager()
 
 serv = pmanager.get_server()
 application = MyAppClass()
+p = Process(target=func, args=(predictorAllocator, serv))
+p.start()
+predictorAllocator = pmanager.PManager()
+application.predictorAllocator = predictorAllocator
+
 
 #
 # Below for testing only
@@ -141,10 +146,6 @@ if __name__ == '__main__':
     global application
     from wsgiref.simple_server import make_server
     print "aaaaaa"
-    p = Process(target=func, args=(predictorAllocator, serv))
-    p.start()
-    predictorAllocator = pmanager.PManager()
-    application.predictorAllocator = predictorAllocator
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     print "app: ", application.predictorAllocator
     print "app: ", application
