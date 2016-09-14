@@ -15,6 +15,7 @@ except IOError:
 from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
 import json
+import pickle
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -31,6 +32,15 @@ class PredictorAllocator:
         n = randint(self.n1,self.n2)
       self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
       return n
+    def load_from_file(self):
+      if os.path.isfile(os.environ['OPENSHIFT_DATA_DIR']+"myfile"):
+        f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'rb')
+        self.predictor_array = pickle.load(f)
+        f.close()
+    def save_to_file(self):
+      f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'wb')
+      pickle.dump(self.predictor_array, f)
+      f.close() # you can omit in most cases as the de
     def getArray(self):
       return self.predictor_array
     def getPredictor(self, n):
@@ -45,7 +55,7 @@ class PredictorManager(BaseManager):
 
 
 pmanager = None
-#predictorAllocator = PredictorAllocator(0,100)
+predictorAllocator = PredictorAllocator(0,100)
 
 
 
@@ -55,6 +65,7 @@ def applicatio(predictorAllocator, environ, start_response):
     ctype = 'text/plain'
     s = ""
     s += str(predictorAllocator)
+    predictorAllocator.load_from_file()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
@@ -107,6 +118,7 @@ def applicatio(predictorAllocator, environ, start_response):
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #
     start_response(status, response_headers)
+    predictorAllocator.save_to_file()
     return [response_body]
 
 from wsgiref.handlers import SimpleHandler
@@ -128,16 +140,6 @@ class MyAppClass:
       print "me: ", self, self.predictorAllocator
       return applicatio(self.predictorAllocator, environ, start_response)
 
-PredictorManager.register('PManager', PredictorAllocator)
-pmanager = PredictorManager()
-pmanager.start()
-application = MyAppClass()
-predictorAllocator = pmanager.PManager()
-application.predictorAllocator = predictorAllocator
-f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'w')
-f.write(str(os.getpid())) # python will convert \n to os.linesep
-f.write(str(json.dumps(predictorAllocator.__dict__)))
-f.close() # you can omit in most cases as the de
 
 #
 # Below for testing only
