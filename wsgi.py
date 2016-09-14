@@ -134,6 +134,7 @@ def application(environ, start_response):
           Yout = [ ]
           P = [ ]
           _classes = [ ]
+          s1 = ""
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)

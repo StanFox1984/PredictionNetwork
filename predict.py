@@ -974,7 +974,7 @@ def getVecMaxDelta(vec, mean):
           max_delta[j] = d[j]
     return max_delta
 
-class Cluster:
+class Cluster(object):
     def __init__(self, vec = [ ], parent = None, name = None):
       self.vec = copy.deepcopy(vec)
       self.mean = None
@@ -1054,6 +1054,13 @@ class Cluster:
           if len(c.vec) > 0:
             k.append(c)
         return k
+    def __str__(self):
+        c = self
+        s = "Cluster:"+ object.__str__(self) +" Parent: "+ str(c.parent) + " Vec: "+ str(c.vec) + " Mean: " + str(c.mean) + " Av delta: "+ str(c.av_delta) + "\n"
+        s += "Subclusters: " + str(c.subclusters) + "\n"
+        return s
+    def print_info(self):
+        print str(self)
 
 class Classificator:
     def __init__(self, init_vec = None):
@@ -1123,8 +1130,7 @@ class Classificator:
       return None
     def print_info(self):
       for c in self.clusters:
-        print "Cluster ", c, "Parent: ", c.parent, " Vec: ", c.vec, "Mean: ", c.mean, "Av delta: ", c.av_delta
-        print "Subclusters: ", c.subclusters
+        c.print_info()
 
 
 class Predictor:
