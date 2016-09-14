@@ -118,14 +118,14 @@ def func(predictorAllocator, s):
 
 
 class MyAppClass:
-    def __init__(self, predictorAllocator):
-      self.predictorAllocator = predictorAllocator
+    def __init__(self):
+      self.predictorAllocator = None
     def __call__(self, environ, start_response):
       return applicatio(self.predictorAllocator, environ, start_response)
 
 PredictorManager.register('PManager', PredictorAllocator)
 pmanager = PredictorManager()
-predictorAllocator = pmanager.PManager()
+
 serv = pmanager.get_server()
 
 application = MyAppClass(predictorAllocator)
@@ -140,6 +140,8 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
     p = Process(target=func, args=(predictorAllocator, serv))
     p.start()
+    predictorAllocator = pmanager.PManager()
+    application.predictorAllocator = predictorAllocator
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
