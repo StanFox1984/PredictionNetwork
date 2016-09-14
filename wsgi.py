@@ -116,6 +116,33 @@ def application(environ, start_response):
           s = s.replace("\n"," <br> ")
           s = s.replace("\r"," <br> ")
           response_body = '<html><body>' + s + '</body></html>'
+    if environ['PATH_INFO'] == '/predict':
+        if predictorAllocator != None:
+          s += str(os.getpid())
+          s1 = environ['QUERY_STRING']
+          s1 = s1.replace("%20"," ")
+          d = parse_qs(s1)
+#        s += str(d)
+#        s += d["W"][0]
+          n = eval(d["n"][0])
+          depth = eval(d["depth"][0])
+          X = eval(d["X"][0])
+          Yout = [ ]
+          P = [ ]
+          _classes = [ ]
+          p = predictorAllocator.getPredictor(n)
+          if p != None:
+            p.predict_p_classes(X, Yout, P, depth, _classes)
+            s+=" Predict: "+ str(n) + str(X)
+            s+=str(P) + "\n"
+            s+=str(Yout) + "\n"
+            s+=str(_classes) + "\n"
+          else:
+            s+=" Not found" + str(n)
+          ctype = 'text/html'
+          s = s.replace("\n"," <br> ")
+          s = s.replace("\r"," <br> ")
+          response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_remove':
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
