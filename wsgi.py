@@ -127,7 +127,7 @@ class MyAppClass:
 PredictorManager.register('PManager', PredictorAllocator)
 pmanager = PredictorManager()
 
-serv = pmanager.get_server()
+serv = pmanager.get_server() 
 
 
 application = MyAppClass() 
