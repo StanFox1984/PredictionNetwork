@@ -123,7 +123,12 @@ class MyAppClass:
     def __call__(self, environ, start_response):
       return applicatio(self.predictorAllocator, environ, start_response)
 
-application = None
+PredictorManager.register('PManager', PredictorAllocator)
+pmanager = PredictorManager()
+predictorAllocator = pmanager.PManager()
+serv = pmanager.get_server()
+
+application = MyAppClass(predictorAllocator)
 
 #
 # Below for testing only
@@ -133,13 +138,8 @@ if __name__ == '__main__':
     global pmanager
     global application
     from wsgiref.simple_server import make_server
-    PredictorManager.register('PManager', PredictorAllocator)
-    pmanager = PredictorManager()
-    predictorAllocator = pmanager.PManager()
-    s = pmanager.get_server()
-    p = Process(target=func, args=(predictorAllocator, s))
+    p = Process(target=func, args=(predictorAllocator, serv))
     p.start()
-    application = MyAppClass(predictorAllocator)
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()
