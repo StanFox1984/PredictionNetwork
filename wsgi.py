@@ -116,7 +116,6 @@ class MyHandler(SimpleHandler):
   def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
 
-class 
 
 from time import sleep
 
