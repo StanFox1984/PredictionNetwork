@@ -138,10 +138,11 @@ def application(environ, start_response):
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)
-            s1+="Predict: "+ str(n) + str(X)+"\n"
+            s1+="Predict "+ str(n) + ": " + str(X)+"\n"
             s1+="X:" + str(P) + "\n"
             s1+="Y:" + str(Yout) + "\n"
-            s1+="Classes:" + str(_classes) + "\n"
+            for c in _classes:
+              s1+="Class:" + str(c) + "\n"
           else:
             s1+=" Not found" + str(n)
           s1 = s1.replace("<", " ")
