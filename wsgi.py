@@ -45,15 +45,19 @@ PredictorManager.register('PManager', PredictorAllocator)
 
 pmanager = None
 #predictorAllocator = PredictorAllocator(0,100)
-
 predictorAllocator = None
 
 def application(environ, start_response):
     global predictorAllocator
+    global pmanager
     global s
     ctype = 'text/plain'
     s += str(predictorAllocator)
     s += str(pmanager)
+    if pmanager == None:
+        pmanager = PredictorManager()
+    if predictorAllocator == None:
+        predictorAllocator = pmanager.PManager()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
         s = s.replace("\n"," <br> ")
