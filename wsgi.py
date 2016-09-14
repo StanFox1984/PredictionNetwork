@@ -65,7 +65,7 @@ def application(environ, start_response):
     ctype = 'text/plain'
     s = ""
     s1 = ""
-    s += str(predictorAllocator)
+#    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
     if environ['PATH_INFO'] == '/tests':
         s += predict.run_all_tests()
@@ -85,7 +85,7 @@ def application(environ, start_response):
           s+=s1
     if environ['PATH_INFO'] == '/predict_create':
         if predictorAllocator != None:
-          s += str(os.getpid())
+#          s += str(os.getpid())
           s1 = environ['QUERY_STRING']
           s1 = s1.replace("%20"," ")
           d = parse_qs(s1)
@@ -101,7 +101,7 @@ def application(environ, start_response):
           response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_study':
         if predictorAllocator != None:
-          s += str(os.getpid())
+#          s += str(os.getpid())
           s1 = environ['QUERY_STRING']
           s1 = s1.replace("%20"," ")
           d = parse_qs(s1)
@@ -122,7 +122,7 @@ def application(environ, start_response):
           response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict':
         if predictorAllocator != None:
-          s += str(os.getpid())
+          #s += str(os.getpid())
           s1 = environ['QUERY_STRING']
           s1 = s1.replace("%20"," ")
           d = parse_qs(s1)
@@ -137,7 +137,7 @@ def application(environ, start_response):
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)
-            s1+=" Predict: "+ str(n) + str(X)
+            s1+="Predict: "+ str(n) + str(X)
             s1+="X:" + str(P) + "\n"
             s1+="Y:" + str(Yout) + "\n"
             s1+="Classes:" + str(_classes) + "\n"
