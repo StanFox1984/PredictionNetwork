@@ -77,9 +77,9 @@ def application(environ, start_response):
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
         if predictorAllocator != None:
-          s1 += str(os.getpid())
-          s1 += str(predictorAllocator.getArray())
-          s1 += str(predictorAllocator)
+#          s1 += str(os.getpid())
+          s1 += str(predictorAllocator.getArray())+"\n"
+#          s1 += str(predictorAllocator)
           s1 = s1.replace("<", " ")
           s1 = s1.replace(">", " ")
           s+=s1
@@ -94,7 +94,7 @@ def application(environ, start_response):
           Wout = eval(d["W"][0])
           step = eval(d["step"][0])
           n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-          s+=" Predictor created "+ str(n)
+          s+=" Predictor created "+ str(n)+"\n"
           ctype = 'text/html'
           s = s.replace("\n"," <br> ")
           s = s.replace("\r"," <br> ")
@@ -113,9 +113,9 @@ def application(environ, start_response):
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.study(X,Y)
-            s+=" Predictor study "+ str(n)
+            s+=" Predictor study "+ str(n)+"\n"
           else:
-            s+=" Not found" + str(n)
+            s+=" Not found" + str(n)+"\n"
           ctype = 'text/html'
           s = s.replace("\n"," <br> ")
           s = s.replace("\r"," <br> ")
@@ -137,7 +137,7 @@ def application(environ, start_response):
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)
-            s1+="Predict: "+ str(n) + str(X)
+            s1+="Predict: "+ str(n) + str(X)+"\n"
             s1+="X:" + str(P) + "\n"
             s1+="Y:" + str(Yout) + "\n"
             s1+="Classes:" + str(_classes) + "\n"
@@ -155,7 +155,7 @@ def application(environ, start_response):
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
         predictorAllocator.deallocate(int(d["n"][0]))
-        s+=" Predictor removed "+ d["n"][0]
+        s+=" Predictor removed "+ d["n"][0]+"\n"
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
