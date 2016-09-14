@@ -64,6 +64,7 @@ def application(environ, start_response):
     global s
     ctype = 'text/plain'
     s = ""
+    s1 = ""
     s += str(predictorAllocator)
     predictorAllocator.load_from_file()
     if environ['PATH_INFO'] == '/tests':
@@ -76,9 +77,12 @@ def application(environ, start_response):
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
         if predictorAllocator != None:
-          s += str(os.getpid())
-          s += str(predictorAllocator.getArray())
-          s += str(predictorAllocator)
+          s1 += str(os.getpid())
+          s1 += str(predictorAllocator.getArray())
+          s1 += str(predictorAllocator)
+          s1.replace("<", " ")
+          s1.replace(">", " ")
+          s+=s1
     if environ['PATH_INFO'] == '/predict_create':
         if predictorAllocator != None:
           s += str(os.getpid())
@@ -133,12 +137,15 @@ def application(environ, start_response):
           p = predictorAllocator.getPredictor(n)
           if p != None:
             p.predict_p_classes(X, Yout, P, depth, _classes)
-            s+=" Predict: "+ str(n) + str(X)
-            s+="X:" + str(P) + "\n"
-            s+="Y:" + str(Yout) + "\n"
-            s+="Classes:" + str(_classes) + "\n"
+            s1+=" Predict: "+ str(n) + str(X)
+            s1+="X:" + str(P) + "\n"
+            s1+="Y:" + str(Yout) + "\n"
+            s1+="Classes:" + str(_classes) + "\n"
           else:
-            s+=" Not found" + str(n)
+            s1+=" Not found" + str(n)
+          s1.replace("<", " ")
+          s1.replace(">", " ")
+          s+=s1
           ctype = 'text/html'
           s = s.replace("\n"," <br> ")
           s = s.replace("\r"," <br> ")
