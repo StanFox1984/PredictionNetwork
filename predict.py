@@ -907,14 +907,14 @@ class NeuralLinearComposedNetwork:
 #        print "chosen2:",self.networks[num_match.index(max(num_match))], max(num_match), num_match, num_match.index(max(num_match))
         YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
-          Y[y] = round(copy.deepcopy(YY[y]),2)
+          Y[y] = round(copy.deepcopy(YY[y]),0)
       else:
 #        print distance
         dist = [ d[0] + d[1] for d in distance ]
 #        print "chosen3:", dist, dist.index(min(dist))
         YY = self.networks[dist.index(min(dist))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
-          Y[y] = round(copy.deepcopy(YY[y]),2)
+          Y[y] = round(copy.deepcopy(YY[y]),0)
       return XX
 
 
@@ -965,6 +965,15 @@ def getVecAverageDelta(vec, mean):
       s[j] = s[j] / float(len(vec))
     return s
 
+def getVecMaxDelta(vec, mean):
+    max_delta = [ 0.0 for i in xrange(0,len(vec[0])) ]
+    for v in vec:
+      d = getVecDelta(v, mean)
+      for j in xrange(0, len(vec[0])):
+        if abs(max_delta[j]) < abs(d[j]):
+          max_delta[j] = d[j]
+    return max_delta
+
 class Cluster:
     def __init__(self, vec = [ ], parent = None, name = None):
       self.vec = copy.deepcopy(vec)
@@ -978,14 +987,17 @@ class Cluster:
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
-        self.av_delta = getVecAverageDelta(self.vec, self.mean)
+        self.av_delta = getVecMaxDelta(self.vec, self.mean)
         return True
       return False
     def check_delta(self, vec):
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
+#        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
         if (d1[j] - self.av_delta[j]) >= self.err:
+#          print "Non Conforms"
           return False
+#      print "Conforms"
       return True
     def classify(self, vec):
 #      print self.mean
@@ -1723,10 +1735,10 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-    linearTest()
+#    linearTest()
     periodicTest()
-    periodicRandTest()
+#    periodicRandTest()
     logicTest()
-    classifierTest()
+#    classifierTest()
     logicTest2()
-    classifierTest2()
+#    classifierTest2()
