@@ -60,7 +60,7 @@ predictorAllocator = PredictorAllocator(0,100)
 
 
 
-def applicatio(predictorAllocator, environ, start_response):
+def application(predictorAllocator, environ, start_response):
     global s
     ctype = 'text/plain'
     s = ""
