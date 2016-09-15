@@ -1136,6 +1136,11 @@ class Classificator:
             cluster_map[c] = 1
           else:
             cluster_map[c] += 1
+        else:
+            if not self.cluster in cluster_map:
+              cluster_map[self.cluster] = 1
+            else:
+              cluster_map[self.cluster] += 1
       print cluster_map
       cluster_vec = [ (c,cluster_map[c]) for c in cluster_map ]
 #      print cluster_vec
@@ -1146,10 +1151,10 @@ class Classificator:
       clusters.sort()
       print clusters
       if only_first == True:
-        if len(clusters)>0:
-          return clusters[0][0]
+        if len(clusters)>1:
+          return clusters[1][0]
         else:
-          return None
+          return clusters[0][0]
       return clusters
     def classify(self, vec, first_or_smallest = False):
       print "Classiffy: ", self.clusters
