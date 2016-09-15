@@ -976,7 +976,12 @@ def getVecMaxDelta(vec, mean):
 
 class Cluster(object):
     def __init__(self, vec = [ ], parent = None, name = None):
-      self.vec = copy.deepcopy(vec)
+      self.vec = [ ]
+      if len(vec) > 0:
+        if type(vec[0]) != list:
+          self.vec.append(vec)
+        else:
+          self.vec = copy.deepcopy(vec);
       self.mean = None
       self.av_delta = None
       self._recalc()
@@ -984,20 +989,23 @@ class Cluster(object):
       self.subclusters = [ ]
       self.name = name
       self.err = 0.1
+      print "Created cluster with vec ", self.vec
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
-        self.av_delta = getVecMaxDelta(self.vec, self.mean)
+#        self.av_delta = getVecMaxDelta(self.vec, self.mean)
+        self.av_delta = getVecAverageDelta(self.vec, self.mean)
+        self.err = abs(max(self.av_delta)/2)
         return True
       return False
     def check_delta(self, vec):
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
-#        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
-        if (d1[j] - self.av_delta[j]) >= self.err:
-#          print "Non Conforms"
+        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
+        if (d1[j] - self.av_delta[j]) > self.err:
+          print "Non Conforms"
           return False
-#      print "Conforms"
+      print "Conforms"
       return True
     def classify(self, vec):
 #      print self.mean
@@ -1005,6 +1013,7 @@ class Cluster(object):
       if not self._recalc():
         self.vec.append(vec)
         self._recalc()
+        print self
         return True
       left = True
       if not self.check_delta(vec):
@@ -1036,7 +1045,7 @@ class Cluster(object):
           self.subclusters.append(c2)
         return self.subclusters
 
-    def k_means(c, num_splits=None):
+    def k_means_old(c, num_splits=None):
 #        print "k_means: ", c, c.vec, c.parent
         k = [ ]
         if num_splits == None:
@@ -1053,6 +1062,38 @@ class Cluster(object):
         else:
           if len(c.vec) > 0:
             k.append(c)
+        return k
+    def k_means(cl, vec, num_splits=None):
+        print "k_means: ", vec
+        k = [ ]
+        print num_splits
+        if num_splits == None:
+          num_splits = len(vec)
+        else:
+          num_splits = min([len(vec), num_splits])
+        print num_splits
+        c = Cluster()
+        c.parent = cl
+        for v in vec:
+          print v
+          if not c.classify(v):
+            k.append(c)
+            c = Cluster(v, cl)
+            print "Vec ", v, " classified in", str(c.vec), str(c)
+          else:
+            print "Vec ", v, " classified in ", str(c.vec), str(c)
+        if len(c.vec) > 0:
+          k.append(c)
+        k1 = [ ]
+        for c in k:
+          if ((num_splits - 1) > 0) and ((len(c.vec))>1):
+            print num_splits - 1
+            r1 = Cluster.k_means(c, c.vec, num_splits-1)
+            if len(r1) > 0:
+              k1.extend(r1)
+          else:
+            print "Not splitting ", c
+        k.extend(k1)
         return k
     def __str__(self):
         c = self
@@ -1082,7 +1123,7 @@ class Classificator:
         self.init_vec = copy.deepcopy(init_vec)
 #      print self.init_vec
       self.cluster = Cluster(self.init_vec)
-      self.clusters  = Cluster.k_means(self.cluster)
+      self.clusters  = Cluster.k_means(self.cluster, self.init_vec)
 #      print self.clusters
     def classify_vec(self, vec, first_or_smallest = False, only_first = True):
       cluster_map = { }
@@ -1742,7 +1783,7 @@ if __name__ == "__main__":
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
 #    linearTest()
-    periodicTest()
+#    periodicTest()
 #    periodicRandTest()
     logicTest()
 #    classifierTest()
