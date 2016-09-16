@@ -714,6 +714,44 @@ def createNetworkForNode(node_addr, _authkey, W0, num_layers, step = None, max_i
     return network
 
 
+def autoCorrelation( Y, n ):
+  print "autocorrelation of ", Y, n
+  Corr = 0
+  for m in xrange(0, len(Y)-n):
+    Corr+=abs((Y[m][0] - Y[(m+n) % len(Y)][0]))
+  Corr = Corr / (len(Y) - n)
+  return Corr
+
+def detectPeriodic( Y ):
+  prev_corr = None
+  Corr = None
+  min_corr = None 
+  num_periods = 0
+  df = 0
+  prev_df = 0
+  for i in xrange(0, len(Y)):
+#      print i
+    prev_corr = Corr
+    Corr = autoCorrelation( Y, i )
+    print "Corr:",Corr
+    if prev_corr != None:
+      prev_df = df
+      df = abs(prev_corr - Corr)
+      print df
+      if prev_corr > Corr:
+        num_periods += 1
+        if min_corr == None or min_corr[0] > Corr:
+          min_corr = ( Corr, i )
+    else:
+      prev_corr = Corr
+#        print Corr
+  if min_corr != None and num_periods >= 1:
+    print "Detect periodic for ", Y
+    print "Periodic detected maximum correlation at ", min_corr[1], Y[min_corr[1]]
+    return True
+#      print "Detect periodic for ", Y
+  return False
+
 class NeuralLinearComposedNetwork:
     def __init__(self, points_per_network, W0, num_layers, step = None, max_iterations = 10, parallelize = False, sp = 1):
       self.networks = [ ]
@@ -732,63 +770,10 @@ class NeuralLinearComposedNetwork:
       self.acc_y = [ ]
 
     def autoCorrelation( self, Y, n ):
-      Corr = 0
-      for m in xrange(0, len(Y)):
-        Corr+=abs((Y[m][0] - Y[(m+n) % len(Y)][0]))
-      return Corr
+      return autoCorrelation(Y, n)
 
     def detectPeriodic( self, Y ):
-      prev_corr = None
-      Corr = None
-      min_corr = None 
-      num_periods = 0
-      df = 0
-      prev_df = 0
-      for i in xrange(0, len(Y)/2):
-#        print i
-        prev_corr = Corr
-        Corr = self.autoCorrelation( Y, i )
-#        print "Corr:",Corr
-        if prev_corr != None:
-          prev_df = df
-          df = abs(prev_corr - Corr)
-#          print df
-          if prev_corr > Corr:
-            num_periods += 1
-            if min_corr == None or min_corr[0] > Corr:
-              min_corr = ( Corr, i )
-        else:
-          prev_corr = Corr
-#          print Corr
-      if min_corr != None and num_periods >= 1:
-#        print "Detect periodic for ", Y
-#        print "Periodic detected maximum correlation at ", min_corr[1], Y[min_corr[1]]
-        return True
-#      print "Detect periodic for ", Y
-      return False
-
-    def _detectPeriodic( self, Y ):
-      prev_corr = None
-      Corr = None
-      min_corr = None 
-      num_periods = 0
-      for i in xrange(0, len(Y)/2):
-        prev_corr = Corr
-        Corr = self.autoCorrelation( Y, i )
-        if prev_corr != None:
-          if prev_corr > Corr:
-            num_periods += 1
-            if min_corr == None or min_corr[0] > Corr:
-              min_corr = ( Corr, i )
-        else:
-          prev_corr = Corr
-#        print Corr
-      if min_corr != None and num_periods >= 1:
-#        print "Detect periodic for ", Y
-#        print "Periodic detected maximum correlation at ", min_corr[1], Y[min_corr[1]]
-        return True
-#      print "Detect periodic for ", Y
-      return False
+      return detectPeriodic(Y)
 
     def nstudy_wrapper(self, network, X, Y):
       network.study(X, Y)
@@ -877,8 +862,8 @@ class NeuralLinearComposedNetwork:
         _X = [ ]
 #        print self.cyclic
         if self.cyclic[j] == True:
-#          print "CYCLIC was detected by neural network"
-#          print "min arg:", self.mn, "max arg:", self.mx, "X:", X, "arg num:", j
+          print "CYCLIC was detected by neural network"
+          print "min arg:", self.mn, "max arg:", self.mx, "X:", X, "arg num:", j
           _X.append(self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1))
           XX[j] = self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1)
 #          print "_X:",_X, self.cyclic[j]
@@ -989,7 +974,7 @@ class Cluster(object):
       self.subclusters = [ ]
       self.name = name
       self.err = 0.1
-      print "Created cluster with vec ", self.vec
+#      print "Created cluster with vec ", self.vec
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
@@ -1001,11 +986,11 @@ class Cluster(object):
     def check_delta(self, vec):
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
-        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
+#        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
         if (d1[j] - self.av_delta[j]) > self.err:
-          print "Non Conforms"
+#          print "Non Conforms"
           return False
-      print "Conforms"
+#      print "Conforms"
       return True
     def classify(self, vec):
 #      print self.mean
@@ -1064,35 +1049,35 @@ class Cluster(object):
             k.append(c)
         return k
     def k_means(cl, vec, num_splits=None):
-        print "k_means: ", vec
+#        print "k_means: ", vec
         k = [ ]
-        print num_splits
+#        print num_splits
         if num_splits == None:
           num_splits = len(vec)
         else:
           num_splits = min([len(vec), num_splits])
-        print num_splits
+#        print num_splits
         c = Cluster()
         c.parent = cl
         for v in vec:
-          print v
+#          print v
           if not c.classify(v):
             k.append(c)
             c = Cluster(v, cl)
-            print "Vec ", v, " classified in", str(c.vec), str(c)
-          else:
-            print "Vec ", v, " classified in ", str(c.vec), str(c)
+#            print "Vec ", v, " classified in", str(c.vec), str(c)
+#          else:
+#            print "Vec ", v, " classified in ", str(c.vec), str(c)
         if len(c.vec) > 0:
           k.append(c)
         k1 = [ ]
         for c in k:
           if ((num_splits - 1) > 0) and ((len(c.vec))>1):
-            print num_splits - 1
+#            print num_splits - 1
             r1 = Cluster.k_means(c, c.vec, num_splits-1)
             if len(r1) > 0:
               k1.extend(r1)
-          else:
-            print "Not splitting ", c
+#          else:
+#            print "Not splitting ", c
         k.extend(k1)
         return k
     def __str__(self):
@@ -1130,7 +1115,7 @@ class Classificator:
       self.print_info()
       for v in xrange(0, len(vec)):
         c = self.classify(vec[v], first_or_smallest)
-        print "c:",c, vec[v]
+#        print "c:",c, vec[v]
         if c!=None:
           if not c in cluster_map:
             cluster_map[c] = 1
@@ -1141,7 +1126,7 @@ class Classificator:
               cluster_map[self.cluster] = 1
             else:
               cluster_map[self.cluster] += 1
-      print cluster_map
+#      print cluster_map
       cluster_vec = [ (c,cluster_map[c]) for c in cluster_map ]
 #      print cluster_vec
       clusters = [ ]
@@ -1149,7 +1134,7 @@ class Classificator:
           if c[1] > 0:
             clusters.append(c)
       clusters.sort()
-      print clusters
+#      print clusters
       if only_first == True:
         if len(clusters)>1:
           return clusters[1][0]
@@ -1157,7 +1142,7 @@ class Classificator:
           return clusters[0][0]
       return clusters
     def classify(self, vec, first_or_smallest = False):
-      print "Classiffy: ", self.clusters
+#      print "Classiffy: ", self.clusters
       smallest = None
       if first_or_smallest == True:
         for c in self.clusters:
@@ -1165,7 +1150,7 @@ class Classificator:
             return c
       else:
         for c in self.clusters:
-          print "Classify ", c, vec
+#          print "Classify ", c, vec
           if c.classify(vec):
             if smallest != None:
               if len(c.vec) < len(smallest.vec):
@@ -1216,7 +1201,7 @@ class Predictor:
         is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
       if is_prefix_time == False:
-#        print "Periodic"
+        print "Periodic"
         res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
         for p in xrange(0, len(prefix_vector)):
           prefix[p] = eval(prefix_vector[p])
@@ -1257,7 +1242,7 @@ class Predictor:
               acc.extend(Yout)
               classes.append(self.classificator.classify(acc))
       else:
-#        print "HERE:"
+        print "HERE:"
         for p in prefix:
           Yout = [ 0 for i in xrange(0, len(self.W)) ]
           appr_p = self.neural.calc_y2( p, Yout)
@@ -1289,13 +1274,13 @@ class Predictor:
       return classes
 
     def predict_p_classes(self, prefix, Y, P, depth, classes, is_prefix_time = None):
-      print "Classes: ", classes
+#      print "Classes: ", classes
       self.classificator.print_info()
       if is_prefix_time == None:
         is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
       if is_prefix_time == False:
-#        print "Periodic"
+        print "Periodic"
         res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
         for p in xrange(0, len(prefix_vector)):
           prefix[p] = eval(prefix_vector[p])
@@ -1336,7 +1321,7 @@ class Predictor:
               acc.extend(Yout)
               classes.append(self.classificator.classify(acc))
       else:
-#        print "HERE:"
+        print "HERE:"
         for p in prefix:
           Yout = [ 0 for i in xrange(0, len(self.W)) ]
           appr_p = self.neural.calc_y2( p, Yout)
@@ -1686,6 +1671,32 @@ def classifierTest2():
     c.print_info()
     print "Classifier2 test end"
 
+def weatherTest():
+    Wout = [ 1.0 ]
+    step = [ 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    SUN_SHINE = 0
+    RAIN = 1
+    NAN = 0
+    X = [ [SUN_SHINE], [SUN_SHINE], [RAIN], [RAIN], [RAIN], [SUN_SHINE], [RAIN] ]
+#    Y = [ [ NAN ] for i in xrange(0, len(X)) ]
+    Y = copy.deepcopy(X)
+    p.study(X,Y)
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([ [ SUN_SHINE ] ], Yout, P, 3, _classes)
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+
+
 def predict_thread(p, f, f2):
     i = 0
     while(True):
@@ -1787,10 +1798,19 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-#    linearTest()
-#    periodicTest()
-#    periodicRandTest()
+    weatherTest()
+    exit(0)
+    linearTest()
+    time.sleep(5)
+    periodicTest()
+    time.sleep(5)
+    periodicRandTest()
+    time.sleep(5)
     logicTest()
-#    classifierTest()
+    time.sleep(5)
+    classifierTest()
+    time.sleep(5)
     logicTest2()
-#    classifierTest2()
+    time.sleep(5)
+    classifierTest2()
+    weatherTest()
