@@ -170,7 +170,13 @@ def application(environ, start_response):
         response_body = '\n'.join(response_body)
     else:
         ctype = 'text/html'
-        response_body = '<html><body>' + s + '</body></html>'
+#        response_body = '<html><body>' + s + '</body></html>'
+        response_body = '''<form action="predict" method="POST" />
+                            <input type="submit" value="predict_study" name="predict_study" />
+                            <input type="submit" value="predict_create" name="predict_create" />
+                            <input type="submit" value="predict" name="predict_list" />
+                            <input type="submit" value="predict_list" name="predict_list" />
+                            </form>'''
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #
