@@ -164,6 +164,13 @@ def application(environ, start_response):
         response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/health':
         response_body = "1"
+    if environ['PATH_INFO'] == '/test_get':
+        s1 = environ['QUERY_STRING']
+        s1 = s1.replace("%20"," ")
+        d = parse_qs(s1)
+        if "predict_study" in d:
+            s+="this is study!!!"
+        response_body = '<html><body>' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
@@ -171,10 +178,11 @@ def application(environ, start_response):
     else:
         ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
-        response_body = '''<form action="predict" method="POST" />
+        response_body = '''<form action="test_get" method="POST" />
                             <input type="submit" value="predict_study" name="predict_study" />
                             <input type="submit" value="predict_create" name="predict_create" />
-                            <input type="submit" value="predict" name="predict_list" />
+                            <input type="submit" value="predict" name="predict" />
+                            <input type="submit" value="predict_remove" name="predict_remove" />
                             <input type="submit" value="predict_list" name="predict_list" />
                             </form>'''
     status = '200 OK'
