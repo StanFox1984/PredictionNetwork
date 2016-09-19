@@ -192,6 +192,10 @@ def application(environ, start_response):
         ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
         response_body = '''<form action="test_get" method="get" />
+                            <input type="text" value="" name="predictor_id" />
+                            <input type="text" value="" name="X" />
+                            <input type="text" value="" name="Y" />
+                            <input type="text" value="" name="ALIAS" />
                             <input type="submit" value="predict_study" name="predict_study" />
                             <input type="submit" value="predict_create" name="predict_create" />
                             <input type="submit" value="predict" name="predict" />
