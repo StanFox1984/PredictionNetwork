@@ -14,6 +14,11 @@ from multiprocessing import Pool
 from tinythreadpool import TinyThreadPool
 from StringIO import StringIO
 import sys
+from theano import *
+import theano.tensor as T
+from theano import function
+import numpy
+
 
 class ProbTree:
     probnodes = {}
@@ -466,9 +471,72 @@ def rain_or_not():
 #Err func2(Wj) = sum_m( Ymj - sum_i(XmiWj) )^2    j = 0..len(X), 0..len(Y), i = range(j), m= 0..len(observations)
 #gradient(Err_func2(Wj), j) =  -1 * sum_m(-2 * Ymj * sum_i(Xi) + sum_i(Xmi*2*Wj))
 
-#d(Yj^2 - 2 Yj sum_i(XiWj) + (sum_i(XiWj)^2)/dWj = -2 Yj sum_i(Xi) + sum_i(Xi^2*2*Wj)
+#d(Ymj^2 - 2 Ymj sum_i(XmiWj) + (sum_i(XmiWj)^2)/dWj = sum_m(-2 Ymj sum_i(Xmi) + sum_i(Xmi^2*2*Wj))
 
+def array_sum(arr):
+    return sum(arr)
 
+def array_sum_theano(arr):
+    v = T.vector('v')
+    z = T.sum(v)
+    f = function([ v ], z)
+    res = f(arr)
+    return res
+
+def array_sum_i(arr, i):
+    return sum(arr[i])
+
+def array_sum_i_theano(arr, i):
+    return array_sum_theano(arr[i])
+
+def multiply_scalars(a1, a2):
+    return a1*a2
+
+def multiply_scalars_theano(a1, a2):
+    x = T.dscalar('x')
+    y = T.dscalar('y')
+    z = x*y
+    f = function( [ x,y],z)
+    res = f(a1,a2)
+    return res
+
+def multiply_scalar_array(a1, arr1):
+    return [ a1*a for a in arr1 ]
+
+def multiply_scalar_array_theano(a1, arr1):
+    x = T.dscalar('x')
+    v = T.vector('v')
+    z = v*x
+    f = function( [x, v], z)
+    res = f(a1, arr1)
+    return res
+
+def array_sum_multiply(arr1, arr2):
+    return array_sum([ arr1[i]*arr2[i] for i in xrange(0, len(arr1)) ])
+
+def array_sum_multiply_theano(arr1, arr2):
+    v1 = T.vector('v1')
+    v2 = T.vector('v2')
+    z = T.sum(v1*v2)
+    f = function([v1,v2], z)
+    res = f(arr1,arr2)
+    return res
+
+def array_sum_multiply_i(arr1, arr2, i):
+    return array_sum([ arr1[i][j]*arr2[i][j] for j in xrange(0, len(arr1[i])) ])
+
+def array_sum_multiply_i_theano(arr1, arr2, i):
+    return array_sum_multiply_theano(arr1[i], arr2[i])
+
+def gradient(Y, X, W, grad):
+    for j in xrange(0, len(W)):
+      for m in xrange(0, len(Y)):
+        grad[j] = multiply_scalars(2.0, array_sum_multiply_i(X, Y, m)) + array_sum(multiply_scalar_array(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
+
+def gradient_theano(Y, X, W, grad):
+    for j in xrange(0, len(W)):
+      for m in xrange(0, len(Y)):
+        grad[j] = multiply_scalars_theano(2.0, array_sum_multiply_i_theano(X, Y, m)) + array_sum_theano(multiply_scalar_array_theano(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
 
 class NeuralLinearLayer:
     def __init__(self, W0, step = None, max_iterations = 10):
@@ -586,10 +654,16 @@ class NeuralLinearLayer:
             if ((2.0 * Y[m][j] * X[m][i] - X[m][i]*X[m][i]*2.0*self.W[j])) != 0:
               grad_before = grad[j]
               grad[j] += ((2.0 * Y[m][j] * X[m][i] - X[m][i]*X[m][i]*2.0*self.W[j]))#/abs((2.0 * Y[m][j] * X[m][i] - X[m][i]*X[m][i]*2.0*self.W[j]))
+
 #              if grad[j] == 0:
 #                print "Grad is zero: 2.0 * Y[m][j] * X[m][i] = ", 2.0 * Y[m][j] * X[m][i], " X[m][i]*X[m][i]*2.0*self.W[j] = ", X[m][i]*X[m][i]*2.0*self.W[j], grad_before
 #            else:
 #              print "Grad is zero: 2.0 * Y[m][j] * X[m][i] = ", 2.0 * Y[m][j] * X[m][i], " X[m][i]*X[m][i]*2.0*self.W[j] = ", X[m][i]*X[m][i]*2.0*self.W[j]
+#      print "grad1: ", grad
+#      gradient(Y, X, self.W, grad)
+#      print "grad2: ", grad
+      gradient_theano(Y, X, self.W, grad)
+#      print "grad3: ", grad
       for j in xrange(0, len(self.W)):
         if grad[j] != 0:
           grad[j] = grad[j]/abs(grad[j])
