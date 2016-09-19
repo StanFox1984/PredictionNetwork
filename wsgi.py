@@ -68,11 +68,13 @@ def handle_predict_list(environ, predictorAllocator):
       s1 = s1.replace(">", " ")
       s+=s1
     script = '''
-                alert("predict_list!!!")
+                alert("predict_list!!!");
                 function moveRight(){
                   document.body.style.left = parseInt(document.body.style.left) + 10 + 'px';
                 }
-                setInterval(moveRight, 1000)
+                document.body.style.position= 'relative';
+                document.body.style.left = '0px';
+                setInterval(moveRight, 1000);
              '''
     response_body = '<html><body>' + s + '<script>\n'+script+'\n</script></body></html>'
     return response_body
