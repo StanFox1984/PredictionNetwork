@@ -14,10 +14,10 @@ from multiprocessing import Pool
 from tinythreadpool import TinyThreadPool
 from StringIO import StringIO
 import sys
-from theano import *
-import theano.tensor as T
-from theano import function
-import numpy
+#from theano import *
+#import theano.tensor as T
+#from theano import function
+#import numpy
 
 
 class ProbTree:
@@ -660,9 +660,9 @@ class NeuralLinearLayer:
 #            else:
 #              print "Grad is zero: 2.0 * Y[m][j] * X[m][i] = ", 2.0 * Y[m][j] * X[m][i], " X[m][i]*X[m][i]*2.0*self.W[j] = ", X[m][i]*X[m][i]*2.0*self.W[j]
 #      print "grad1: ", grad
-#      gradient(Y, X, self.W, grad)
+      gradient(Y, X, self.W, grad)
 #      print "grad2: ", grad
-      gradient_theano(Y, X, self.W, grad)
+#      gradient_theano(Y, X, self.W, grad)
 #      print "grad3: ", grad
       for j in xrange(0, len(self.W)):
         if grad[j] != 0:
