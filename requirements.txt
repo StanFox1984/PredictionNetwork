@@ -1,6 +1,1 @@
-Theano==0.8.2
-numexpr==1.4.2
-numpy==1.11.2rc1
-scikits.statsmodels==0.3.1
-scipy==0.18.0
-six==1.10.0
+
