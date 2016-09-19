@@ -57,8 +57,17 @@ class PredictorManager(BaseManager):
 pmanager = None
 predictorAllocator = PredictorAllocator(0,100)
 
-
-
+def handle_predict_list(environ, predictorAllocator):
+    s = ""
+    if predictorAllocator != None:
+#        s1 += str(os.getpid())
+      s1 += str(predictorAllocator.getArray())+"\n"
+#        s1 += str(predictorAllocator)
+      s1 = s1.replace("<", " ")
+      s1 = s1.replace(">", " ")
+      s+=s1
+    response_body = '<html><body>' + s + '</body></html>'
+    return response_body
 
 def application(environ, start_response):
     global s
@@ -74,15 +83,8 @@ def application(environ, start_response):
         ctype = 'text/html'
         s = s.replace("\n"," <br> ")
         s = s.replace("\r"," <br> ")
-        response_body = '<html><body>' + s + '</body></html>'
     if environ['PATH_INFO'] == '/predict_list':
-        if predictorAllocator != None:
-#          s1 += str(os.getpid())
-          s1 += str(predictorAllocator.getArray())+"\n"
-#          s1 += str(predictorAllocator)
-          s1 = s1.replace("<", " ")
-          s1 = s1.replace(">", " ")
-          s+=s1
+        response_body = handle_predict_list(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
         if predictorAllocator != None:
 #          s += str(os.getpid())
@@ -168,9 +170,10 @@ def application(environ, start_response):
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
-        if "predict_study" in d:
-            s+="this is study!!!"
-        response_body = '<html><body>' + s + '</body></html>'
+        if "predict_list" in d:
+            response_body = handle_predict_list(environ, predictorAllocator)
+        else:
+            response_body = '<html><body>' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
