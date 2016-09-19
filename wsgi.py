@@ -59,6 +59,7 @@ predictorAllocator = PredictorAllocator(0,100)
 
 def handle_predict_list(environ, predictorAllocator):
     s = ""
+    s1 = ""
     if predictorAllocator != None:
 #        s1 += str(os.getpid())
       s1 += str(predictorAllocator.getArray())+"\n"
