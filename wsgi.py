@@ -62,7 +62,7 @@ predictorAllocator = PredictorAllocator(0,100)
 
 def application(environ, start_response):
     global s
-    ctype = 'text/plain'
+    ctype = 'text/html'
     s = ""
     s1 = ""
 #    s += str(predictorAllocator)
