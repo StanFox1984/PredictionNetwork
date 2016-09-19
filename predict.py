@@ -1163,6 +1163,49 @@ class Classificator:
       for c in self.clusters:
         c.print_info()
 
+class FuzzyDict(dict):
+    """A dictionary that applies an arbitrary key-altering function
+       before accessing the keys."""
+
+    def __keytransform__(self, key):
+        return key
+
+    # Overridden methods. List from 
+    # http://stackoverflow.com/questions/2390827/how-to-properly-subclass-dict
+
+    def __init__(self, *args, **kwargs):
+        self.ranges = [ ]
+        self.err = 0.5
+        self.update(*args, **kwargs)
+
+    # Note: I'm using dict directly, since super(dict, self) doesn't work.
+    # I'm not sure why, perhaps dict is not a new-style class.
+
+    def __getitem__(self, key):
+        for r in self.ranges:
+          if key >=r[0] and key<= r[1]:
+            return dict.__getitem__(self, self.__keytransform__(r[0]))
+        return dict.__getitem__(self, self.__keytransform__(key))
+
+    def __setitem__(self, key, value):
+        for r in self.ranges:
+          if key >=r[0] and key<= r[1]:
+            return dict.__setitem__(self, self.__keytransform__(r[0]), value)
+        self.ranges.append([ key, key+type(key)(self.err) ])
+        return dict.__setitem__(self, self.__keytransform__(key), value)
+
+    def set_err(self, err):
+        self.err = err
+
+    def add_range(self, key_min, key_max):
+        self.ranges.append([key_min, key_max])
+
+    def __delitem__(self, key):
+        return dict.__delitem__(self, self.__keytransform__(key))
+
+    def __contains__(self, key):
+        return dict.__contains__(self, self.__keytransform__(key))
+
 
 class Predictor:
     def __init__(self, points_per_network, W, layers, step, max_steps, acc_value = 1):
@@ -1173,7 +1216,20 @@ class Predictor:
       self.acc_x = [ ]
       self.acc_y = [ ]
       self.classificator = Classificator()
-    def study(self, X, Y):
+      self.alias_dict = FuzzyDict()
+      self.back_alias_dict =FuzzyDict()
+    def set_alias( self, key, value):
+      self.alias_dict[key] = value
+      self.back_alias_dict[value] = key
+    def study(self, _X, _Y):
+      X = copy.deepcopy(_X)
+      Y = copy.deepcopy(_Y)
+      for i in xrange(0, len(_X)):
+        for j in xrange(0, len(self.W)):
+          if _X[i][j] in self.alias_dict:
+            X[i][j] = self.alias_dict[_X[i][j]]
+          if _Y[i][j] in self.alias_dict:
+            Y[i][j] = self.alias_dict[_Y[i][j]]
       for i in xrange(0, len(X)):
         self.acc_x.append(X[i])
         self.acc_y.append(Y[i])
@@ -1308,6 +1364,12 @@ class Predictor:
               acc = copy.deepcopy(appr_p)
               acc.extend(Yout)
               classes.append(self.classificator.classify(acc))
+          for i in xrange(0, len(P)):
+            for j in xrange(0, len(self.W)):
+              if P[i][j] in self.back_alias_dict:
+                P[i][j] = self.back_alias_dict[P[i][j]]
+              if Yout[i][j] in self.back_alias_dict:
+                Yout[i][j] = self.back_alias_dict[Yout[i][j]]
           return
         for r in res:
           Yout = [ 0 for i in xrange(0, len(self.W)) ]
@@ -1350,6 +1412,12 @@ class Predictor:
               acc = copy.deepcopy(appr_p)
               acc.extend(Yout)
               classes.append(self.classificator.classify(acc))
+      for i in xrange(0, len(P)):
+        for j in xrange(0, len(P[i])):
+          if P[i][j] in self.back_alias_dict:
+            P[i][j] = self.back_alias_dict[P[i][j]]
+          if Y[i][j] in self.back_alias_dict:
+            Y[i][j] = self.back_alias_dict[Y[i][j]]
 
 def autoCorrelation( Y, n ):
   Corr = 0
@@ -1678,9 +1746,11 @@ def weatherTest():
     SUN_SHINE = 0
     RAIN = 1
     NAN = 0
-    X = [ [SUN_SHINE], [SUN_SHINE], [RAIN], [RAIN], [RAIN], [SUN_SHINE], [RAIN] ]
+    X = [ ["SUN_SHINE"], ["SUN_SHINE"], ["RAIN"], ["RAIN"], ["RAIN"], ["SUN_SHINE"], ["RAIN"] ]
 #    Y = [ [ NAN ] for i in xrange(0, len(X)) ]
     Y = copy.deepcopy(X)
+    p.set_alias("SUN_SHINE", 0)
+    p.set_alias("RAIN", 1)
     p.study(X,Y)
     Yout = [ ]
     P = [ ]
