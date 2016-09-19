@@ -67,7 +67,7 @@ def handle_predict_list(environ, predictorAllocator):
       s1 = s1.replace("<", " ")
       s1 = s1.replace(">", " ")
       s+=s1
-    response_body = '<html><body>' + s + '</body></html>'
+    response_body = '<html><body>' + s + '<script>\nalert("predict_list!!!")\n</script></body></html>'
     return response_body
 
 def application(environ, start_response):
