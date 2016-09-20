@@ -572,27 +572,7 @@ class NeuralLinearLayer:
       else:
         self.step = [ 0.001 for n in self.W ]
       self.max_iterations = max_iterations
-    def study(self, X, Y):
-      grad = [ 0 for n in self.W ]
-      Wout = list(self.W)
-      for i in xrange(0, len(Y)):
-        iterations = 0
-        self.last_err_func = None
-        while True and iterations < self.max_iterations:
-#          print "Starting weights: " , self.W
-          self.calc_gradient(X[i], Y[i], grad, Wout)
-          n = self.calc_err_func(X[i], Y[i])
-          if self.last_err_func == None or n < self.last_err_func:
-            self.last_err_func = n
-          else:
-#            print "Last error ", n," is more than prev ", self.last_err_func
-            break
-          self.W = list(Wout)
-          iterations += 1
-#          print "W:", Wout
-#          print "Gradient vector:", grad
-#          print "Err:", n
-#          print "Step:", self.step
+      self.WC = [ 0.0 for i in xrange(0,len(self.W)) ]
 
     def study2(self, X, Y):
       grad = [ 0 for n in self.W ]
@@ -612,7 +592,7 @@ class NeuralLinearLayer:
             self.step[l] *= 2
           overall_iterations += iterations
           iterations_left -= iterations
-#          print "Increased step to ", self.step, "iterations_left: ", iterations_left, "W: ", self.W, "last_grad: ", grad
+          print "Increased step to ", self.step, "iterations_left: ", iterations_left, "W: ", self.W, "last_grad: ", grad
           for h in xrange(0, len(X)):
             _Y = copy.deepcopy(Y)
             t = self.calc_y(X[h], _Y[h])
@@ -634,22 +614,23 @@ class NeuralLinearLayer:
           if n == 0:
             break
           else:
-            if len(X) > 2:
-              break
-            else:
-              for l in xrange(0, len(self.step)):
-                self.step[l] *= 8
-#              print "Probable local maximum detected, drastically increasing step to ", self.step
-              for j in xrange(0, len(self.W)):
-                Wout[j] = self.W[j]
-                self.W[j] += self.step[j]*grad[j]
-                n = self.calc_err_func2(X, Y)
+            for l in xrange(0, len(self.step)):
+              self.step[l] *= 8
+#            print "Probable local maximum detected, drastically increasing step to ", self.step
+            for j in xrange(0, len(self.W)):
+              Wout[j] = self.W[j]
+              self.W[j] += self.step[j]*grad[j]
+              n = self.calc_err_func2(X, Y)
         if self.last_err_func == None or n <= self.last_err_func:
           self.last_err_func = n
         else:
-#          print "Last error ", n," is more than prev ", self.last_err_func
+          print "Last error ", n," is more than prev ", self.last_err_func
           for j in xrange(0,len(self.W)):
             self.W[j] = Wout[j]
+          n = self.calc_err_func2(X, Y)
+          Ytest = copy.deepcopy(Y)
+          for m in xrange(0, len(X)):
+            print "Achieved err ", n, X, self.calc_y(X[m], Ytest[m])
           break
         iterations += 1
       overall_iterations += iterations
@@ -664,7 +645,10 @@ class NeuralLinearLayer:
         for j in xrange(0, len(Y)):
           Y[j] = 0.0
           for i in xrange(0, len(X)):
+            if abs(X[i] - 0.0) < 0.0000001:
+              X[i]+=0.0000001
             Y[j]+=(self.W[j])*X[i]
+          Y[j]+=self.WC[j]
         return Y
 
     def calc_gradient2(self, X, Y, grad):
@@ -674,6 +658,8 @@ class NeuralLinearLayer:
         sum_i_2 = 0
         for m in xrange(0, len(Y)):
           for i in xrange(0, len(X[m])):
+            if abs(X[m][i] - 0.0) < 0.0000001:
+              X[m][i]+=0.0000001
 #            sum_i += X[m][i]
 #            sum_i_2 += X[m][i]*X[m][i]
             if ((2.0 * Y[m][j] * X[m][i] - X[m][i]*X[m][i]*2.0*self.W[j])) != 0:
@@ -695,15 +681,6 @@ class NeuralLinearLayer:
       return grad
 #        print "W[j](", Wout[j],")+=", self.step[j]*grad[j]
 
-    def calc_err_func(self, X, Y):
-      Err = 0
-      for j in xrange(0, len(Y)):
-        s = 0.0
-        for i in xrange(0, len(X)):
-            s += X[i]*self.W[j]
-        Err += pow(( Y[j] - s ), 2)
-      return Err
-
     def calc_err_func2(self, X, Y):
       Err = 0
       for m in xrange(0, len(Y)):
@@ -711,6 +688,8 @@ class NeuralLinearLayer:
           s = 0.0
           for i in xrange(0, len(X[m])):
             s += X[m][i]*self.W[j]
+          s+=self.WC[j]
+#          print s, Y[m][j], Y
           Err += pow(( Y[m][j] - s ), 2)
       return Err
 
@@ -739,7 +718,7 @@ class NeuralLinearNetwork:
   #        for m in xrange(0, len(X0)):
   #          X0[m].extend(X_layers[j][m])
 #        for m in xrange(0, len(Y0)):
-#          print os.getpid(), ": Teaching layer ", i, " X0:",X0[m]," Y0:", Y0[m]
+        print os.getpid(), ": Teaching layer ", i, " X0:",X0," Y0:", Y0
         self.layers[i].study2(X0, Y0)
         X_layers.append(X0)
 #       print X0, Y0
@@ -925,6 +904,7 @@ class NeuralLinearComposedNetwork:
 #             _added_X = [ [ x[0] for x in added_X ] ]
 #             _added_Y = [ [ y[0] for y in added_Y ] ]
             if self.parallelize == False:
+              print "network "+ str(self.networks[len(self.networks)-1][2]) + "for points "+str(added_X)+" "+str(added_Y)+" study"
               self.networks[len(self.networks)-1][2].study(added_X, added_Y)
             else:
               if self.pool == None:
@@ -991,14 +971,14 @@ class NeuralLinearComposedNetwork:
 #        print "chosen2:",self.networks[num_match.index(max(num_match))], max(num_match), num_match, num_match.index(max(num_match))
         YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
-          Y[y] = round(copy.deepcopy(YY[y]),0)
+          Y[y] = round(copy.deepcopy(YY[y]),2)
       else:
 #        print distance
         dist = [ d[0] + d[1] for d in distance ]
 #        print "chosen3:", dist, dist.index(min(dist))
         YY = self.networks[dist.index(min(dist))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
-          Y[y] = round(copy.deepcopy(YY[y]),0)
+          Y[y] = round(copy.deepcopy(YY[y]),2)
       return XX
 
 
@@ -1582,15 +1562,22 @@ def linearTest():
     grad = [ 0, 0 ]
     Wout = [ W[0], W[1] ]
     step = [ 0.01, 0.01 ]
-    p = Predictor(2, Wout, 3, step, 1000000)
+    p = Predictor(1, Wout, 3, step, 1000000)
     p.study(X, Y)
     Yout = [ ]
-    p.predict_p([ [ 13.0, 14.0 ] ], Yout, P, 10)
+    p.predict_p(X, Yout, P, 0)
     print "Approximated Y:", Yout
     print "Approximated X:", P
     print "Y:", Y
     print "X:", X
     print "Linear test end"
+    for p in xrange(0, len(P)):
+      print P[p]
+      print Yout[p][0], pow(P[p][0] +P[p][1],2)
+      if abs(Yout[p][0] - pow(P[p][0] +P[p][1],2)) > 1:
+        return False
+    print "Linear test PASSED"
+    return True
     #p.neural.pool.wait_ready()
     #p.neural.pool.stop()
 
@@ -1603,7 +1590,7 @@ def periodicTest():
     Wout = [ W[0], W[1] ]
     step = [ 0.01, 0.01 ]
     print "Periodic(sin emulate) test begin"
-    p2 = Predictor(2, Wout, 5, step, 1000000)
+    p2 = Predictor(1, Wout, 3, step, 1000000)
     Y = [ [math.sin(i), math.sin(i)] for i in xrange(0,10) ]
     X = [ [ i, i ] for i in xrange(0,10) ]
     print Y, [ [i, i] for i in xrange(0,10) ]
@@ -1622,6 +1609,13 @@ def periodicTest():
     print "X: ", X
     print "####"
     print "Periodic(sin) test end"
+    for p in xrange(0, len(P)):
+      print P[p]
+      print Yout[p][0], P[p][0], math.sin(float(P[p][0]))
+      if abs(Yout[p][0] - math.sin(float(P[p][0]))) > 0.1:
+        return False
+    print "Periodic test PASSED"
+    return True
     #p2.neural.pool.wait_ready()
     #p2.neural.pool.stop()
 
@@ -1634,20 +1628,28 @@ def periodicRandTest():
     Wout = [ W[0], W[1] ]
     step = [ 0.01, 0.01 ]
     print "Periodic(sin emulate) test begin"
-    p2 = Predictor(1, Wout, 5, step, 1000000)
-    Y = [ [math.sin(i)+random.randint(0,100), math.sin(i)+random.randint(0,100)] for i in xrange(0,10) ]
+    p2 = Predictor(1, Wout, 3, step, 1000000)
+    y= [ math.sin(i)+random.randint(0,100) for i in xrange(0,10) ]
+    Y = [ [y[i],y[i]] for i in xrange(0,10) ]
     X = [ [ i, i ] for i in xrange(0,10) ]
     print Y, [ [i, i] for i in xrange(0,10) ]
     p2.study([ [i, i] for i in xrange(0,10) ], Y)
     Yout = [ ]
     P = [ ]
-    p2.predict_p([ [ 0, 0 ] ], Yout, P, 20)
+    p2.predict_p(X, Yout, P, 0)
     print "Approximated Sin+rand:", Yout
     print "Approximated X:", P
     print "Sin(X)+rand: ", Y
     print "X: ", X
     print "####"
     print "Periodic(sin) test end"
+    for p in xrange(0, len(P)):
+      print P[p]
+      print Yout[p][0], Y[p][0], P[p][0]
+      if abs(Yout[p][0] - Y[p][0]) > 0.1:
+        return False
+    print "Periodic rand test PASSED"
+    return True
     #p2.neural.pool.wait_ready()
     #p2.neural.pool.stop()
 
@@ -1705,7 +1707,7 @@ def logicTest():
     Y.append( [ 1.0, 1.0 ] )
     Yout = [ ]
     P = [ ]
-    p3.predict_p_classes([ [ 1.0, 3.0 ] ], Yout, P, 10, _classes)
+    p3.predict_p_classes(X, Yout, P, 0, _classes)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -1716,6 +1718,12 @@ def logicTest():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
+    for p in xrange(0, len(X)):
+      print P[p], len(P), len(X)
+      print Yout[p], Y[p], P[p]
+      if abs(Yout[p][0] - Y[p][0]) > 1.0:
+        return False
+    print "Logic test PASSED"
     #p3.neural.pool.wait_ready()
     #p3.neural.pool.stop()
 
@@ -1745,7 +1753,7 @@ def logicTest2():
     Yout = [ ]
     P = [ ]
     p3.classificator.print_info()
-    p3.predict_p_classes([ [ 1, 1, 1, 0, 0, 1, 1, 0 ] ], Yout, P, 1, _classes, False)
+    p3.predict_p_classes(X, Yout, P, 0, _classes, False)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -1756,6 +1764,17 @@ def logicTest2():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    for p in xrange(0, len(X)):
+      print P[p], len(P), len(X)
+      print Yout[p], Y[p], P[p]
+      if abs(Yout[p][0] - Y[p][0]) > 1.0:
+        return False
+    print "Logic test2 PASSED"
 #    p3.neural.pool.wait_ready()
 #    p3.neural.pool.stop()
 
@@ -1812,18 +1831,23 @@ def classifierTest():
     else:
       print "Not found"
     print square
+    if res.name != "square":
+      return False
     res = c.classify_vec(circle)
     if res:
       print "Found:", res, res.name
     else:
       print "Not found"
     print circle
+    if res.name != "circle":
+      return False
     circle.extend(square)
     res = c.classify_vec(circle, False, False)
     for r in res:
       print "Found:", r[0], r[0].name
     c.print_info()
     print "Classifier test end"
+    return True
 
 def classifierTest2():
     print "Classifier2 test begin"
@@ -1857,7 +1881,7 @@ def weatherTest():
     Yout = [ ]
     P = [ ]
     _classes = [ ]
-    p.predict_p_classes([ ], Yout, P, 3, _classes)
+    p.predict_p_classes([ ], Yout, P, 10, _classes)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -1867,6 +1891,21 @@ def weatherTest():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
+    if len(P) < 10:
+      return False
+    sun_shine = 0
+    rain = 0
+    for p in P:
+      if p[0] == "SUN_SHINE":
+        sun_shine+=1
+      if p[0] == "RAIN":
+        rain+=1
+    if sun_shine <3:
+      return False
+    if rain<4:
+      return False
+    print "weatherTest PASSED"
+    return True
 
 
 def predict_thread(p, f, f2):
@@ -1970,19 +2009,24 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-    weatherTest()
+#    weatherTest()
+    #exit(0)
+#    linearTest()
 #    exit(0)
-    linearTest()
-    time.sleep(5)
-    periodicTest()
-    time.sleep(5)
-    periodicRandTest()
-    time.sleep(5)
-    logicTest()
-    time.sleep(5)
+#    time.sleep(5)
+#    periodicTest()
+#    exit(0)
+#    time.sleep(5)
+#    periodicRandTest()
+#    exit(0)
+#    time.sleep(5)
+#    logicTest()
+#    exit(0)
+#    time.sleep(5)
     classifierTest()
-    time.sleep(5)
-    logicTest2()
-    time.sleep(5)
-    classifierTest2()
-    weatherTest()
+#    time.sleep(5)
+#    logicTest2()
+#    exit(0)
+#    time.sleep(5)
+#    classifierTest2()
+#    weatherTest()
