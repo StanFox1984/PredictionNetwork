@@ -1405,6 +1405,8 @@ class Predictor:
 
     def predict_p_classes(self, _prefix, Y, P, depth, classes, is_prefix_time = None):
 #      print "Classes: ", classes
+      print self.alias_dict
+      print self.back_alias_dict
       self.classificator.print_info()
       prefix = copy.deepcopy(_prefix)
       for i in xrange(0, len(_prefix)):
