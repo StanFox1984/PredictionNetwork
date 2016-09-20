@@ -1403,9 +1403,14 @@ class Predictor:
               classes.append(self.classificator.classify(acc))
       return classes
 
-    def predict_p_classes(self, prefix, Y, P, depth, classes, is_prefix_time = None):
+    def predict_p_classes(self, _prefix, Y, P, depth, classes, is_prefix_time = None):
 #      print "Classes: ", classes
       self.classificator.print_info()
+      prefix = copy.deepcopy(_prefix)
+      for i in xrange(0, len(_prefix)):
+        for j in xrange(0, len(self.W)):
+          if _prefix[i][j] in self.alias_dict:
+            prefix[i][j] = self.alias_dict[_prefix[i][j]]
       if is_prefix_time == None:
         is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
