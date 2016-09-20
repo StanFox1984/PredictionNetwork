@@ -74,10 +74,28 @@ def handle_predict_list(environ, predictorAllocator):
                 }
                 document.body.style.position= 'relative';
                 document.body.style.left = '0px';
-                setInterval(moveRight, 1000);
+                //setInterval(moveRight, 1000);
              '''
     response_body = '<html><body>' + s + '<script>\n'+script+'\n</script></body></html>'
     return response_body
+
+def handle_predict_create(environ, predictorAllocator):
+  if predictorAllocator != None:
+#        s += str(os.getpid())
+      s1 = environ['QUERY_STRING']
+      s1 = s1.replace("%20"," ")
+      d = parse_qs(s1)
+#        s += str(d)
+#        s += d["W"][0]
+      Wout = eval(d["W"][0])
+      step = eval(d["step"][0])
+      n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+      s+=" Predictor created "+ str(n)+"\n"
+      ctype = 'text/html'
+      s = s.replace("\n"," <br> ")
+      s = s.replace("\r"," <br> ")
+      response_body = '<html><body>' + s + '</body></html>'
+      return response_body
 
 def application(environ, start_response):
     global s
@@ -96,21 +114,7 @@ def application(environ, start_response):
     if environ['PATH_INFO'] == '/predict_list':
         response_body = handle_predict_list(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
-        if predictorAllocator != None:
-#          s += str(os.getpid())
-          s1 = environ['QUERY_STRING']
-          s1 = s1.replace("%20"," ")
-          d = parse_qs(s1)
-#        s += str(d)
-#        s += d["W"][0]
-          Wout = eval(d["W"][0])
-          step = eval(d["step"][0])
-          n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-          s+=" Predictor created "+ str(n)+"\n"
-          ctype = 'text/html'
-          s = s.replace("\n"," <br> ")
-          s = s.replace("\r"," <br> ")
-          response_body = '<html><body>' + s + '</body></html>'
+        response_body = handle_predict_create(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_study':
         if predictorAllocator != None:
 #          s += str(os.getpid())
@@ -180,9 +184,14 @@ def application(environ, start_response):
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
+        c = 0
         if "predict_list" in d:
             response_body = handle_predict_list(environ, predictorAllocator)
-        else:
+            c = 1
+        if "predict_create" in d:
+            response_body = handle_predict_create(environ, predictorAllocator)
+            c = 1
+        if c == 0:
             response_body = '<html><body>' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
@@ -192,10 +201,10 @@ def application(environ, start_response):
         ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
         response_body = '''<form action="test_get" method="get" />
-                            <input type="text" value="" name="predictor_id" />
-                            <input type="text" value="" name="X" />
-                            <input type="text" value="" name="Y" />
-                            <input type="text" value="" name="ALIAS" />
+                            <input type="text" value="predictor_id" name="predictor_id" /><br>
+                            <input type="text" value="X" name="X" /><br>
+                            <input type="text" value="Y" name="Y" /><br>
+                            <input type="text" value="ALIAS" name="ALIAS" /><br>
                             <input type="submit" value="predict_study" name="predict_study" />
                             <input type="submit" value="predict_create" name="predict_create" />
                             <input type="submit" value="predict" name="predict" />
