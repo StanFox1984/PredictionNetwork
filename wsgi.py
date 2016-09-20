@@ -254,10 +254,10 @@ def application(environ, start_response):
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
-    else:
-        ctype = 'text/html'
+
+    ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
-        response_body = '''<form action="test_get" method="get" />
+    response_body += '''<br><form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
                             <input type="text" value="X" name="X" /><br>
                             <input type="text" value="Y" name="Y" /><br>
