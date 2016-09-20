@@ -205,6 +205,11 @@ def application(environ, start_response):
                             <input type="text" value="X" name="X" /><br>
                             <input type="text" value="Y" name="Y" /><br>
                             <input type="text" value="ALIAS" name="ALIAS" /><br>
+                            <input type="text" value="W" name="W" /><br>
+                            <input type="text" value="step" name="step" /><br>
+                            <input type="text" value="points_per_network" name="points_per_network" /><br>
+                            <input type="text" value="num_layers" name="num_layers" /><br>
+                            <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" />
                             <input type="submit" value="predict_create" name="predict_create" />
                             <input type="submit" value="predict" name="predict" />
