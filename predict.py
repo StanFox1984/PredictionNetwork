@@ -1446,8 +1446,9 @@ class Predictor:
         res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
         for p in xrange(0, len(prefix_vector)):
           prefix[p] = eval(prefix_vector[p])
-        if depth > len(res):
-          res = None
+        for r in res:
+#          print r.data
+          prefix.append(eval(r.data))
 #        print res
         for p in prefix:
           Yout = [ 0 for i in xrange(0, len(self.W)) ]
@@ -1458,9 +1459,11 @@ class Predictor:
               acc = copy.deepcopy(appr_p)
               acc.extend(Yout)
               classes.append(self.classificator.classify(acc))
-        if res == None:
+        if res == None or depth > len(res):
+          if res == None:
+            res = [ ]
 #          print xrange(int(prefix[0][0]), int(prefix[0][0]+depth))
-          for x in xrange(int(prefix[0][0]), int(prefix[0][0]+depth)):
+          for x in xrange(int(prefix[len(prefix)-1][0]), int(prefix[len(prefix)-1][0]+depth-len(res))):
             Yout = [ 0 for i in xrange(0, len(self.W)) ]
             appr_p = self.neural.calc_y2([ x for i in xrange(0, len(self.W)) ], Yout)
 #            print "Yout:", Yout
@@ -1477,13 +1480,6 @@ class Predictor:
               if Yout[i][j] in self.back_alias_dict:
                 Yout[i][j] = self.back_alias_dict[Yout[i][j]]
           return
-        for r in res:
-          Yout = [ 0 for i in xrange(0, len(self.W)) ]
-#          print r.data
-          P.append(eval(r.data))
-          appr_p = self.neural.calc_y2(eval(r.data), Yout)
-#          print "Yout:", Yout
-          Y.append(Yout)
           if classes != None:
               acc = copy.deepcopy(appr_p)
               acc.extend(Yout)
