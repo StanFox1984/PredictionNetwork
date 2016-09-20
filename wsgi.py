@@ -203,6 +203,7 @@ def application(environ, start_response):
     ctype = 'text/html'
     s = ""
     s1 = ""
+    response_body = ""
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
     if environ['PATH_INFO'] == '/tests':
