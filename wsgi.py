@@ -185,6 +185,7 @@ def application(environ, start_response):
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
+        print d
         c = 0
         if "predict_list" in d:
             response_body = handle_predict_list(environ, predictorAllocator)
