@@ -81,7 +81,7 @@ def handle_predict_list(environ, predictorAllocator):
 
 def handle_predict_create(environ, predictorAllocator):
       s = ""
-  if predictorAllocator != None:
+    if predictorAllocator != None:
 #        s += str(os.getpid())
       s1 = environ['QUERY_STRING']
       s1 = s1.replace("%20"," ")
