@@ -106,6 +106,16 @@ class ProbTree:
           self.outcomes[el].printOutcomes(el, self.stamp)
         print "*************************"
 
+    def getMostProbable(self):
+        max_id = -1
+        for p in xrange(0, len(self.outcomes)):
+          if max_id != -1:
+            if self.probs[self.outcomes[p]] > self.probs[self.outcomes[max_id]]:
+              max_id = p
+          else:
+              max_id = p
+        return self.outcomes[max_id]
+
     def generateWithProb(self, in_prefix, max_len):
         ret = [ ]
         tmp = self
@@ -162,6 +172,16 @@ class ProbNetwork:
         else:
             if key in ProbTree.probnodes:
                 ProbTree.probnodes[key].printOutcomes()
+    def getMostProbable(self):
+        max_tree = None
+        for p in ProbTree.probnodes:
+          if max_tree != None:
+            if ProbTree.probnodes[p].total_hits > max_tree.total_hits:
+              max_tree = ProbTree.probnodes[p]
+          else:
+            max_tree = ProbTree.probnodes[p]
+        return max_tree
+
     def generateWithProb(self, in_prefix, max_len):
         vec = [ el.key for el in in_prefix ]
 #        print vec
@@ -169,10 +189,14 @@ class ProbNetwork:
 #        print res
         out = [ ProbTree.probnodes[el[0]].data for el in res ]
         return out
+
     def _generateWithProb(self, in_prefix, max_len):
-        if in_prefix[0] in ProbTree.probnodes:
-#            print ProbTree.probnodes[in_prefix[0]].me
+        if len(in_prefix) > 0:
+          if in_prefix[0] in ProbTree.probnodes:
+#              print ProbTree.probnodes[in_prefix[0]].me
             return ProbTree.probnodes[in_prefix[0]].generateWithProb(in_prefix[1:], max_len)
+        else:
+          return self.getMostProbable().generateWithProb(in_prefix[1:], max_len)
 
 class Entity:
     def __init__(self, key, data):
@@ -1416,7 +1440,7 @@ class Predictor:
       if is_prefix_time == None:
         is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
-      if is_prefix_time == False:
+      if is_prefix_time == False or len(_prefix)==0:
         print "Periodic"
         res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
         for p in xrange(0, len(prefix_vector)):
@@ -1836,7 +1860,7 @@ def weatherTest():
     Yout = [ ]
     P = [ ]
     _classes = [ ]
-    p.predict_p_classes([ [ SUN_SHINE ] ], Yout, P, 3, _classes)
+    p.predict_p_classes([ ], Yout, P, 3, _classes)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -1950,7 +1974,7 @@ if __name__ == "__main__":
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
     weatherTest()
-    exit(0)
+#    exit(0)
     linearTest()
     time.sleep(5)
     periodicTest()
