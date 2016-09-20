@@ -80,23 +80,23 @@ def handle_predict_list(environ, predictorAllocator):
     return response_body
 
 def handle_predict_create(environ, predictorAllocator):
-      s = ""
-    if predictorAllocator != None:
-#        s += str(os.getpid())
-      s1 = environ['QUERY_STRING']
-      s1 = s1.replace("%20"," ")
-      d = parse_qs(s1)
-#        s += str(d)
-#        s += d["W"][0]
-      Wout = eval(d["W"][0])
-      step = eval(d["step"][0])
-      n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
-      s+=" Predictor created "+ str(n)+"\n"
-      ctype = 'text/html'
-      s = s.replace("\n"," <br> ")
-      s = s.replace("\r"," <br> ")
-      response_body = '<html><body>' + s + '</body></html>'
-      return response_body
+  s = ""
+  if predictorAllocator != None:
+#       s += str(os.getpid())
+    s1 = environ['QUERY_STRING']
+    s1 = s1.replace("%20"," ")
+    d = parse_qs(s1)
+#       s += str(d)
+#       s += d["W"][0]
+    Wout = eval(d["W"][0])
+    step = eval(d["step"][0])
+    n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+    s+=" Predictor created "+ str(n)+"\n"
+    ctype = 'text/html'
+    s = s.replace("\n"," <br> ")
+    s = s.replace("\r"," <br> ")
+    response_body = '<html><body>' + s + '</body></html>'
+  return response_body
 
 def application(environ, start_response):
     global s
