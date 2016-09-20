@@ -123,6 +123,33 @@ def handle_predict_study(environ, predictorAllocator):
     response_body = '<html><body>' + s + '</body></html>'
     return response_body
 
+def handle_predict_set_alias(environ, predictorAllocator):
+  s = ""
+  if predictorAllocator != None:
+#   s += str(os.getpid())
+    s1 = environ['QUERY_STRING']
+    s1 = s1.replace("%20"," ")
+    d = parse_qs(s1)
+#   s += str(d)
+#   s += d["W"][0]
+    n = eval(d["n"][0])
+    print d
+    alias = eval(d["alias"][0])
+    print alias
+    key = eval(alias["key"])
+    value = eval(alias["value"])
+    p = predictorAllocator.getPredictor(n)
+    if p != None:
+      p.set_alias(key, value)
+      s+=" Predictor set alias "+ str(n)+"\n"
+    else:
+      s+=" Not found" + str(n)+"\n"
+    ctype = 'text/html'
+    s = s.replace("\n"," <br> ")
+    s = s.replace("\r"," <br> ")
+    response_body = '<html><body>' + s + '</body></html>'
+    return response_body
+
 def handle_predict(environ, predictorAllocator):
   s= ""
   if predictorAllocator != None:
@@ -218,6 +245,9 @@ def application(environ, start_response):
         if "predict_remove" in d:
             response_body = handle_predict_remove(environ, predictorAllocator)
             c = 1
+        if "predict_set_alias" in d:
+            response_body = handle_predict_set_alias(environ, predictorAllocator)
+            c = 1
         if c == 0:
             response_body = '<html><body>' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
@@ -232,7 +262,7 @@ def application(environ, start_response):
                             <input type="text" value="X" name="X" /><br>
                             <input type="text" value="Y" name="Y" /><br>
                             <input type="text" value="depth" name="depth" /><br>
-                            <input type="text" value="ALIAS" name="ALIAS" /><br>
+                            <input type="text" value="alias" name="alias" /><br>
                             <input type="text" value="W" name="W" /><br>
                             <input type="text" value="step" name="step" /><br>
                             <input type="text" value="points_per_network" name="points_per_network" /><br>
@@ -240,6 +270,7 @@ def application(environ, start_response):
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" />
                             <input type="submit" value="predict_create" name="predict_create" />
+                            <input type="submit" value="predict_set_alias" name="predict_set_alias" />
                             <input type="submit" value="predict" name="predict" />
                             <input type="submit" value="predict_remove" name="predict_remove" />
                             <input type="submit" value="predict_list" name="predict_list" />
