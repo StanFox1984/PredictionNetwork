@@ -174,6 +174,7 @@ class ProbNetwork:
                 ProbTree.probnodes[key].printOutcomes()
     def getMostProbable(self):
         max_tree = None
+        print "Prob: ", ProbTree.probnodes
         for p in ProbTree.probnodes:
           if max_tree != None:
             if ProbTree.probnodes[p].total_hits > max_tree.total_hits:
