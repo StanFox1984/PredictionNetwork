@@ -88,6 +88,7 @@ def handle_predict_create(environ, predictorAllocator):
     d = parse_qs(s1)
 #       s += str(d)
 #       s += d["W"][0]
+    print d
     Wout = eval(d["W"][0])
     step = eval(d["step"][0])
     n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
