@@ -268,11 +268,11 @@ def application(environ, start_response):
                             <input type="text" value="points_per_network" name="points_per_network" /><br>
                             <input type="text" value="num_layers" name="num_layers" /><br>
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
-                            <input type="submit" value="predict_study" name="predict_study" />
+                            <input type="submit" value="predict_study" name="predict_study" /><br>
                             <input type="submit" value="predict_create" name="predict_create" />
-                            <input type="submit" value="predict_set_alias" name="predict_set_alias" />
+                            <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
                             <input type="submit" value="predict" name="predict" />
-                            <input type="submit" value="predict_remove" name="predict_remove" />
+                            <input type="submit" value="predict_remove" name="predict_remove" /><br>
                             <input type="submit" value="predict_list" name="predict_list" />
                             </form>'''
     status = '200 OK'
