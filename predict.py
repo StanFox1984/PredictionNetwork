@@ -21,8 +21,7 @@ import sys
 
 
 class ProbTree:
-    probnodes = {}
-    def __init__(self):
+    def __init__(self, parent):
         self.outcomes = {}
         self.pass_by_hits = { }
         self.endpoint_hits = { }
@@ -33,17 +32,18 @@ class ProbTree:
         self.r2 = { }
         self.stamp = time.time()
         self.total_hits = 0
+        self.parent = parent
     def _addOutcome_Internal(self, key, data, last = False):
         p = None
         if key not in self.outcomes:
 #            print key," not in ", self.outcomes
-            if key not in ProbTree.probnodes:
-                p = ProbTree()
+            if key not in self.parent.probnodes:
+                p = ProbTree(self.parent)
                 p.data = data
                 p.me = ( key, data)
-                ProbTree.probnodes[key] = p
+                self.parent.probnodes[key] = p
             else:
-                p = ProbTree.probnodes[key]
+                p = self.parent.probnodes[key]
             self.outcomes[key] = p
             self.pass_by_hits[key] = 0
             self.endpoint_hits[key] = 0
@@ -150,37 +150,37 @@ class ProbTree:
 
 class ProbNetwork:
     def __init__(self):
-        pass
+        self.probnodes = {}
     def addAssociativeChain(self, chain):
         vec = [ ( el.key, el ) for el in chain ]
         self.addOutcome(vec)
     def addOutcome(self, in_arr):
         p = None
 #        print in_arr
-        if in_arr[0][0] in ProbTree.probnodes:
-            p = ProbTree.probnodes[in_arr[0][0]]
+        if in_arr[0][0] in self.probnodes:
+            p = self.probnodes[in_arr[0][0]]
         else:
-            p = ProbTree()
+            p = ProbTree(self)
             p.me = in_arr[0]
             p.data = in_arr[0][1]
-            ProbTree.probnodes[in_arr[0][0]] = p
+            self.probnodes[in_arr[0][0]] = p
         p.addOutcome(in_arr[1:])
     def printOutcomes(self, key = None):
         if key == None:
-            for el in ProbTree.probnodes:
-                ProbTree.probnodes[el].printOutcomes(el)
+            for el in self.probnodes:
+                self.probnodes[el].printOutcomes(el)
         else:
-            if key in ProbTree.probnodes:
-                ProbTree.probnodes[key].printOutcomes()
+            if key in self.probnodes:
+                self.probnodes[key].printOutcomes()
     def getMostProbable(self):
         max_tree = None
-        print "Prob: ", ProbTree.probnodes
-        for p in ProbTree.probnodes:
+        print "Prob: ", self.probnodes
+        for p in self.probnodes:
           if max_tree != None:
-            if ProbTree.probnodes[p].total_hits > max_tree.total_hits:
-              max_tree = ProbTree.probnodes[p]
+            if self.probnodes[p].total_hits > max_tree.total_hits:
+              max_tree = self.probnodes[p]
           else:
-            max_tree = ProbTree.probnodes[p]
+            max_tree = self.probnodes[p]
         return max_tree
 
     def generateWithProb(self, in_prefix, max_len):
@@ -188,14 +188,14 @@ class ProbNetwork:
 #        print vec
         res = self._generateWithProb(vec, max_len)
 #        print res
-        out = [ ProbTree.probnodes[el[0]].data for el in res ]
+        out = [ self.probnodes[el[0]].data for el in res ]
         return out
 
     def _generateWithProb(self, in_prefix, max_len):
         if len(in_prefix) > 0:
-          if in_prefix[0] in ProbTree.probnodes:
-#              print ProbTree.probnodes[in_prefix[0]].me
-            return ProbTree.probnodes[in_prefix[0]].generateWithProb(in_prefix[1:], max_len)
+          if in_prefix[0] in self.probnodes:
+#              print self.probnodes[in_prefix[0]].me
+            return self.probnodes[in_prefix[0]].generateWithProb(in_prefix[1:], max_len)
         else:
           return self.getMostProbable().generateWithProb(in_prefix[1:], max_len)
 
