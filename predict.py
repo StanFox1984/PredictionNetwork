@@ -1477,8 +1477,8 @@ class Predictor:
             for j in xrange(0, len(self.W)):
               if P[i][j] in self.back_alias_dict:
                 P[i][j] = self.back_alias_dict[P[i][j]]
-              if Yout[i][j] in self.back_alias_dict:
-                Yout[i][j] = self.back_alias_dict[Yout[i][j]]
+              if Y[i][j] in self.back_alias_dict:
+                Y[i][j] = self.back_alias_dict[Y[i][j]]
           return
           if classes != None:
               acc = copy.deepcopy(appr_p)
