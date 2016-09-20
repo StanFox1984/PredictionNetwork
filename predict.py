@@ -1053,25 +1053,26 @@ class Cluster(object):
       self.subclusters = [ ]
       self.name = name
       self.err = 0.1
-#      print "Created cluster with vec ", self.vec
+      print "Created cluster with vec ", self.vec
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
 #        self.av_delta = getVecMaxDelta(self.vec, self.mean)
-        self.av_delta = getVecAverageDelta(self.vec, self.mean)
+        self.av_delta = getVecMaxDelta(self.vec, self.mean)
         self.err = abs(max(self.av_delta)/2)
         return True
       return False
     def check_delta(self, vec):
+      print vec
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
-#        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
+        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
         if (d1[j] - self.av_delta[j]) > self.err:
-#          print "Non Conforms"
+          print "Non Conforms"
           return False
-#      print "Conforms"
+      print "Conforms"
       return True
-    def classify(self, vec):
+    def classify(self, vec, no_add = False):
 #      print self.mean
 #      print "Average ", self.av_delta
       if not self._recalc():
@@ -1083,8 +1084,9 @@ class Cluster(object):
       if not self.check_delta(vec):
           left = False
       if left == True:
-        self.vec.append(vec)
-        self._recalc()
+        if no_add != True:
+          self.vec.append(vec)
+          self._recalc()
         return True
       return False
     def clusterize(self):
@@ -1225,12 +1227,14 @@ class Classificator:
       smallest = None
       if first_or_smallest == True:
         for c in self.clusters:
-          if c.classify(vec):
+          print "Check cluster: ", c
+          if c.classify(vec, True):
             return c
       else:
         for c in self.clusters:
 #          print "Classify ", c, vec
-          if c.classify(vec):
+          print "Check cluster: ", c, "vec: ", vec
+          if c.classify(vec, True):
             if smallest != None:
               if len(c.vec) < len(smallest.vec):
                 smallest = c
@@ -1846,7 +1850,7 @@ def classifierTest():
     for r in res:
       print "Found:", r[0], r[0].name
     c.print_info()
-    print "Classifier test end"
+    print "Classifier test end PASSED"
     return True
 
 def classifierTest2():
@@ -1857,13 +1861,16 @@ def classifierTest2():
     X.append([ 0, 1, 1, 0, 0, 1, 1, 0])
     Y.append([ 1, 0, 0, 0, 0, 0, 0, 0])
     X[0].extend(Y[0])
-    c.reinit(X)
+#    c.reinit(X)
     X.append([ 1, 0, 0, 1, 1, 0, 0, 1])
     Y.append([ 0, 0, 0, 0, 0, 0, 0, 1])
     X[1].extend(Y[1])
     c.reinit(X)
     c.print_info()
-    print "Classifier2 test end"
+    if len(c.clusters) != 2:
+      return False
+    print "Classifier2 test end PASSED"
+    return True
 
 def weatherTest():
     Wout = [ 1.0 ]
@@ -1940,12 +1947,25 @@ def run_all_tests():
     mystdout = StringIO()
     sys.stdout = mystdout
 #    print "sdsds"
+    weatherTest()
+    #exit(0)
     linearTest()
+#    exit(0)
+#    time.sleep(5)
     periodicTest()
+#    exit(0)
+#    time.sleep(5)
     periodicRandTest()
+#    exit(0)
+#    time.sleep(5)
     logicTest()
+#    exit(0)
+#    time.sleep(5)
     classifierTest()
+#    time.sleep(5)
     logicTest2()
+#    exit(0)
+#    time.sleep(5)
     classifierTest2()
     s = mystdout.getvalue()
 #    except e:
@@ -2009,24 +2029,24 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-#    weatherTest()
+    weatherTest()
     #exit(0)
-#    linearTest()
+    linearTest()
 #    exit(0)
 #    time.sleep(5)
-#    periodicTest()
+    periodicTest()
 #    exit(0)
 #    time.sleep(5)
-#    periodicRandTest()
+    periodicRandTest()
 #    exit(0)
 #    time.sleep(5)
-#    logicTest()
+    logicTest()
 #    exit(0)
 #    time.sleep(5)
     classifierTest()
 #    time.sleep(5)
-#    logicTest2()
+    logicTest2()
 #    exit(0)
 #    time.sleep(5)
-#    classifierTest2()
+    classifierTest2()
 #    weatherTest()
