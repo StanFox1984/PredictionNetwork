@@ -80,6 +80,7 @@ def handle_predict_list(environ, predictorAllocator):
     return response_body
 
 def handle_predict_create(environ, predictorAllocator):
+      s = ""
   if predictorAllocator != None:
 #        s += str(os.getpid())
       s1 = environ['QUERY_STRING']
