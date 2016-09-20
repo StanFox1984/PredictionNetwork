@@ -136,8 +136,8 @@ def handle_predict_set_alias(environ, predictorAllocator):
     print d
     alias = eval(d["alias"][0])
     print alias
-    key = eval(alias["key"])
-    value = eval(alias["value"])
+    key = alias["key"]
+    value = alias["value"]
     p = predictorAllocator.getPredictor(n)
     if p != None:
       p.set_alias(key, value)
