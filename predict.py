@@ -458,11 +458,12 @@ class FactorAnalyzer:
         i = 0
         for factor in prefix_factors:
             if factor not in self.factor_map:
-#                print factor, "not in ", self.factor_map
+                print factor, "not in ", self.factor_map
                 for el in self.factor_map:
 #                    print el
                     if len(self.factor_outcome_list) > 0:
                       d = getVecDiffAbsWithCorr(eval(el), eval(factor), self.corr)
+                      print "DiffAbs:", d, eval(el), eval(factor), self.corr
                     else:
                       if distance_func != None:
                         d = distance_func(el, factor)
@@ -473,6 +474,7 @@ class FactorAnalyzer:
                         distance_metric = d
             else:
                 closest_factor = factor
+            print "closest was ", closest_factor
             prefix_factors[i] = closest_factor
             i += 1
             if generate_func == None:
@@ -800,7 +802,8 @@ def autoCorrelation( Y, n ):
   Corr = Corr / (len(Y) - n)
   return Corr
 
-def detectPeriodic( Y ):
+def _detectPeriodic( Y ):
+  print "Detecting periodic for", Y
   prev_corr = None
   Corr = None
   min_corr = None 
@@ -851,16 +854,21 @@ class NeuralLinearComposedNetwork:
       return autoCorrelation(Y, n)
 
     def detectPeriodic( self, Y ):
-      return detectPeriodic(Y)
+#      print "Detect"
+      return _detectPeriodic(Y)
 
     def nstudy_wrapper(self, network, X, Y):
       network.study(X, Y)
 
     def study(self, X, Y):
       self.acc_y.extend(Y)
+      self.acc_x.extend(X)
+#      print "study"
       for j in xrange(0, len(self.W0)):
+#        print "study2: ", j
 #        if not self.detectPeriodic( [ [ X[m][j] ] for m in xrange(0, len(X)) ] ):
-         self.cyclic[j] = self.detectPeriodic( [ [ self.acc_y[m][j] ] for m in xrange(0, len(self.acc_y)) ] )
+        self.cyclic[j] = self.detectPeriodic( [ [ self.acc_y[m][j] ] for m in xrange(0, len(self.acc_y)) ] )
+        self.cyclic[j] = self.cyclic[j] or self.detectPeriodic( [ [ self.acc_x[m][j] ] for m in xrange(0, len(self.acc_x)) ] )
 #      print self.cyclic
       n = 0
       added_X = [ ]
@@ -1048,18 +1056,18 @@ class Cluster(object):
           self.vec = copy.deepcopy(vec);
       self.mean = None
       self.av_delta = None
+      self.err = 1
       self._recalc()
       self.parent = parent
       self.subclusters = [ ]
       self.name = name
-      self.err = 0.1
       print "Created cluster with vec ", self.vec
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
 #        self.av_delta = getVecMaxDelta(self.vec, self.mean)
         self.av_delta = getVecMaxDelta(self.vec, self.mean)
-        self.err = abs(max(self.av_delta)/2)
+        self.err = abs(max(self.av_delta)/2)+self.err
         return True
       return False
     def check_delta(self, vec):
@@ -1334,10 +1342,17 @@ class Predictor:
       for a in arr:
         res = res and a
       return res
+    def some(self, arr):
+      res = True
+      for a in arr:
+        if a == True:
+          return True
+      return False
     def predict_p(self, prefix, Y, P, depth, is_prefix_time = None):
       classes = [ ]
+      print self.neural.cyclic
       if is_prefix_time == None:
-        is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
+        is_prefix_time = False if self.some(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
       if is_prefix_time == False:
         print "Periodic"
@@ -1420,10 +1435,12 @@ class Predictor:
       prefix = copy.deepcopy(_prefix)
       for i in xrange(0, len(_prefix)):
         for j in xrange(0, len(self.W)):
+#          print "palias", _prefix[i][j], self.alias_dict
           if _prefix[i][j] in self.alias_dict:
             prefix[i][j] = self.alias_dict[_prefix[i][j]]
+      print self.neural.cyclic
       if is_prefix_time == None:
-        is_prefix_time = False if self.all_and(self.neural.cyclic) == True else True
+        is_prefix_time = False if self.some(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
       if is_prefix_time == False or len(_prefix)==0:
         print "Periodic"
@@ -1902,16 +1919,66 @@ def weatherTest():
       return False
     sun_shine = 0
     rain = 0
-    for p in P:
-      if p[0] == "SUN_SHINE":
+    for p in xrange(0, len(P)):
+      if P[p][0] == "SUN_SHINE":
         sun_shine+=1
-      if p[0] == "RAIN":
+      if P[p][0] == "RAIN":
         rain+=1
+      if P[p][0] != Yout[p][0]:
+        return False
     if sun_shine <3:
       return False
     if rain<4:
       return False
     print "weatherTest PASSED"
+    return True
+
+def weatherTest2():
+    Wout = [ 1.0, 1.0, 1.0, 1.0 ]
+    step = [ 0.1, 0.1, 0.1, 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    p.set_alias("SUN_SHINE", 0)
+    p.set_alias("RAIN", 1)
+    p.set_alias("WARM", 2)
+    p.set_alias("COLD", 3)
+    p.set_alias("WINTER", 40)
+    p.set_alias("SUMMER", 50)
+    p.set_alias("GOOD_WEATHER", 6)
+    p.set_alias("BAD_WEATHER", 7)
+    X = [ ]
+    Y = [ ]
+#    X.extend([ [0, 3, 40, 6] ])
+#    Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
+#    X.extend([ [0, 2, 40, 7] ])
+#    Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+#    X.extend([ [0, 3, 40, 6] ])
+#    Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
+#    X.extend([ [0, 2, 40, 7] ])
+#    Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "COLD", "WINTER", "GOOD_WEATHER"] ])
+    Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "WARM", "WINTER", "BAD_WEATHER"] ])
+    Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "COLD", "WINTER", "GOOD_WEATHER"] ])
+    Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "WARM", "WINTER", "BAD_WEATHER"] ])
+    Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+    p.study(X,Y)
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([ ["SUN_SHINE", "COLD", 200, "BAD_WEATHER"] ], Yout, P, 4, _classes)
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    if len(P) < 10:
+      return False
     return True
 
 
@@ -1940,12 +2007,17 @@ def predict_thread(p, f, f2):
       f2.write(str(Y)+"\n")
       f2.flush()
 
-def run_all_tests():
-    oldstdout = sys.stdout
+def run_all_tests(rep = True):
+    mystdout = None
+    oldstdout = None
+    s = ""
+    if rep:
+      oldstdout = sys.stdout
 #    s = "dsdsdsds"
 #    try:
-    mystdout = StringIO()
-    sys.stdout = mystdout
+    if rep:
+      mystdout = StringIO()
+      sys.stdout = mystdout
 #    print "sdsds"
     weatherTest()
     #exit(0)
@@ -1967,11 +2039,14 @@ def run_all_tests():
 #    exit(0)
 #    time.sleep(5)
     classifierTest2()
-    s = mystdout.getvalue()
+    weatherTest2()
+    if rep:
+      s = mystdout.getvalue()
 #    except e:
 #      print "Exception!"
 #    finally:
-    sys.stdout = oldstdout
+    if rep:
+      sys.stdout = oldstdout
     return s
 
 if __name__ == "__main__":
@@ -2029,8 +2104,9 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-    weatherTest()
-    #exit(0)
+#    run_all_tests(False)
+    weatherTest2()
+    exit(0)
     linearTest()
 #    exit(0)
 #    time.sleep(5)
