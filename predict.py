@@ -819,6 +819,27 @@ def autoCorrelation( Y, n ):
   Corr = Corr / (len(Y) - n)
   return Corr
 
+def detectMonotonicity(Y):
+  if len(Y) <= 1:
+    return False
+  last_Y = Y[0][0]
+  if Y[1][0] != last_Y:
+    last_s = (Y[1][0] - last_Y) / (abs(Y[1][0] - last_Y))
+  else:
+    last_s = 0
+  c = 0
+  for i in xrange(2, len(Y)):
+    if Y[i][0] != last_Y:
+      s = (Y[i][0] - last_Y) / (abs(Y[i][0] - last_Y))
+    else:
+      s = 0
+    if last_s != s and last_s != 0:
+      c += 1
+    last_Y = Y[i][0]
+    last_s = s
+  return c >= 1
+
+
 def _detectPeriodic( Y ):
   print "Detecting periodic for", Y
   prev_corr = None
@@ -872,7 +893,7 @@ class NeuralLinearComposedNetwork:
 
     def detectPeriodic( self, Y ):
 #      print "Detect"
-      return _detectPeriodic(Y)
+      return detectMonotonicity(Y)
 
     def nstudy_wrapper(self, network, X, Y):
       network.study(X, Y)
@@ -1767,6 +1788,7 @@ def logicTest():
       if abs(Yout[p][0] - Y[p][0]) > 1.0:
         return False
     print "Logic test PASSED"
+    return True
     #p3.neural.pool.wait_ready()
     #p3.neural.pool.stop()
 
@@ -1818,6 +1840,7 @@ def logicTest2():
       if abs(Yout[p][0] - Y[p][0]) > 1.0:
         return False
     print "Logic test2 PASSED"
+    return True
 #    p3.neural.pool.wait_ready()
 #    p3.neural.pool.stop()
 
@@ -2164,11 +2187,11 @@ if __name__ == "__main__":
         print pid
 #        commands.getoutput("ssh localhost 'cd /home/estalis/exps/outcome2/;python predict.py server &'")
       exit(0)
-#    run_all_tests(False)
-    weatherTest2()
+    run_all_tests(False)
+#    weatherTest2()
     exit(0)
     linearTest()
-#    exit(0)
+    exit(0)
 #    time.sleep(5)
     periodicTest()
 #    exit(0)
