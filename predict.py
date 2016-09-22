@@ -1168,7 +1168,11 @@ class Cluster(object):
         c.parent = cl
         for v in vec:
 #          print v
-          if not c.classify(v):
+          classified = False
+          for cc in k:
+            if cc.classify(v):
+              classified = True
+          if classified != True and not c.classify(v):
             k.append(c)
             c = Cluster(v, cl)
 #            print "Vec ", v, " classified in", str(c.vec), str(c)
@@ -1215,7 +1219,7 @@ class Classificator:
         self.init_vec = copy.deepcopy(init_vec)
 #      print self.init_vec
       self.cluster = Cluster(self.init_vec)
-      self.clusters  = Cluster.k_means(self.cluster, self.init_vec)
+      self.clusters  = Cluster.k_means(self.cluster, self.init_vec, 1)
 #      print self.clusters
     def classify_vec(self, vec, first_or_smallest = False, only_first = True):
       cluster_map = { }
@@ -2003,8 +2007,18 @@ def weatherTest2():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
-    if len(P) < 10:
+    if len(P) < 4:
+      print "Wrong P"
       return False
+    if P[0][2] != "SUMMER" or abs(Yout[0][0] - 10.0) > 5:
+      print "Wrong guess ", P[0][2]
+      return False
+    if len(p.classificator.clusters) != 4:
+      print "Wrong classes number", len(p.classificator.clusters)
+      for c in p.classificator.clusters:
+        print str(c)
+      return False
+    print "weatherTest2 PASSED"
     return True
 
 
