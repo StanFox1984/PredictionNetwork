@@ -174,7 +174,7 @@ class ProbNetwork:
                 self.probnodes[key].printOutcomes()
     def getMostProbable(self):
         max_tree = None
-        print "Prob: ", self.probnodes
+#        print "Prob: ", self.probnodes
         for p in self.probnodes:
           if max_tree != None:
             if self.probnodes[p].total_hits > max_tree.total_hits:
@@ -434,13 +434,13 @@ class FactorAnalyzer:
         i = 0
         for factor in prefix_factors:
             if factor not in self.factor_map:
-                print factor, "not in ", self.factor_map
+#                print factor, "not in ", self.factor_map
                 for el in self.factor_map:
 #                    print el
                     if len(self.factor_outcome_list) > 0:
                       d = getVecDiffAbsWithCorr(eval(el), eval(factor), self.corr)
                       m = prefix_match_len(el, factor)
-                      print "DiffAbs:", d, eval(el), eval(factor), self.corr, m
+#                      print "DiffAbs:", d, eval(el), eval(factor), self.corr, m
                     else:
                       if distance_func != None:
                         d = distance_func(el, factor)
@@ -574,7 +574,7 @@ class NeuralLinearLayer:
             self.step[l] *= 2
           overall_iterations += iterations
           iterations_left -= iterations
-          print "Increased step to ", self.step, "iterations_left: ", iterations_left, "W: ", self.W, "last_grad: ", grad
+#          print "Increased step to ", self.step, "iterations_left: ", iterations_left, "W: ", self.W, "last_grad: ", grad
           for h in xrange(0, len(X)):
             _Y = copy.deepcopy(Y)
             t = self.calc_y(X[h], _Y[h])
@@ -606,13 +606,13 @@ class NeuralLinearLayer:
         if self.last_err_func == None or n <= self.last_err_func:
           self.last_err_func = n
         else:
-          print "Last error ", n," is more than prev ", self.last_err_func
+#          print "Last error ", n," is more than prev ", self.last_err_func
           for j in xrange(0,len(self.W)):
             self.W[j] = Wout[j]
           n = self.calc_err_func2(X, Y)
           Ytest = copy.deepcopy(Y)
-          for m in xrange(0, len(X)):
-            print "Achieved err ", n, X, self.calc_y(X[m], Ytest[m])
+#          for m in xrange(0, len(X)):
+#            print "Achieved err ", n, X, self.calc_y(X[m], Ytest[m])
           break
         iterations += 1
       overall_iterations += iterations
@@ -700,7 +700,7 @@ class NeuralLinearNetwork:
   #        for m in xrange(0, len(X0)):
   #          X0[m].extend(X_layers[j][m])
 #        for m in xrange(0, len(Y0)):
-        print os.getpid(), ": Teaching layer ", i, " X0:",X0," Y0:", Y0
+#        print os.getpid(), ": Teaching layer ", i, " X0:",X0," Y0:", Y0
         self.layers[i].study2(X0, Y0)
         X_layers.append(X0)
 #       print X0, Y0
@@ -775,7 +775,7 @@ def createNetworkForNode(node_addr, _authkey, W0, num_layers, step = None, max_i
 
 
 def autoCorrelation( Y, n ):
-  print "autocorrelation of ", Y, n
+#  print "autocorrelation of ", Y, n
   Corr = 0
   for m in xrange(0, len(Y)-n):
     Corr+=abs((Y[m][0] - Y[(m+n) % len(Y)][0]))
@@ -804,7 +804,7 @@ def detectMonotonicity(Y):
 
 
 def _detectPeriodic( Y ):
-  print "Detecting periodic for", Y
+#  print "Detecting periodic for", Y
   prev_corr = None
   Corr = None
   min_corr = None 
@@ -913,7 +913,7 @@ class NeuralLinearComposedNetwork:
 #             _added_X = [ [ x[0] for x in added_X ] ]
 #             _added_Y = [ [ y[0] for y in added_Y ] ]
             if self.parallelize == False:
-              print "network "+ str(self.networks[len(self.networks)-1][2]) + "for points "+str(added_X)+" "+str(added_Y)+" study"
+#              print "network "+ str(self.networks[len(self.networks)-1][2]) + "for points "+str(added_X)+" "+str(added_Y)+" study"
               self.networks[len(self.networks)-1][2].study(added_X, added_Y)
             else:
               if self.pool == None:
@@ -950,8 +950,8 @@ class NeuralLinearComposedNetwork:
         _X = [ ]
 #        print self.cyclic
         if self.cyclic[j] == True:
-          print "CYCLIC was detected by neural network"
-          print "min arg:", self.mn, "max arg:", self.mx, "X:", X, "arg num:", j
+#          print "CYCLIC was detected by neural network"
+#          print "min arg:", self.mn, "max arg:", self.mx, "X:", X, "arg num:", j
           _X.append(self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1))
           XX[j] = self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1)
 #          print "_X:",_X, self.cyclic[j]
@@ -1046,7 +1046,7 @@ class Cluster(object):
       self.parent = parent
       self.subclusters = [ ]
       self.name = name
-      print "Created cluster with vec ", self.vec
+#      print "Created cluster with vec ", self.vec
     def _recalc(self):
       if len(self.vec) > 0:
         self.mean = getMean(self.vec)
@@ -1056,15 +1056,15 @@ class Cluster(object):
         return True
       return False
     def check_delta(self, vec):
-      print vec
+#      print vec
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
         self.err = abs(self.mean[j]/2)
-        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
+#        print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
         if (d1[j] - self.av_delta[j]) > self.err:
-          print "Non Conforms", (d1[j] - self.av_delta[j]), self.err, (d1[j] - self.av_delta[j]) > self.err
+#          print "Non Conforms", (d1[j] - self.av_delta[j]), self.err, (d1[j] - self.av_delta[j]) > self.err
           return False
-      print "Conforms"
+#      print "Conforms"
       return True
     def classify(self, vec, no_add = False):
 #      print self.mean
@@ -1072,7 +1072,7 @@ class Cluster(object):
       if not self._recalc():
         self.vec.append(vec)
         self._recalc()
-        print self
+#        print self
         return True
       left = True
       if not self.check_delta(vec):
@@ -1191,7 +1191,7 @@ class Classificator:
 #      print self.clusters
     def classify_vec(self, vec, first_or_smallest = False, only_first = True):
       cluster_map = { }
-      self.print_info()
+#      self.print_info()
       for v in xrange(0, len(vec)):
         c = self.classify(vec[v], first_or_smallest)
 #        print "c:",c, vec[v]
@@ -1225,13 +1225,13 @@ class Classificator:
       smallest = None
       if first_or_smallest == True:
         for c in self.clusters:
-          print "Check cluster: ", c
+#          print "Check cluster: ", c
           if c.classify(vec, True):
             return c
       else:
         for c in self.clusters:
 #          print "Classify ", c, vec
-          print "Check cluster: ", c, "vec: ", vec
+#          print "Check cluster: ", c, "vec: ", vec
           if c.classify(vec, True):
             if smallest != None:
               if len(c.vec) < len(smallest.vec):
@@ -1346,16 +1346,16 @@ class Predictor:
 
     def predict_p_classes(self, _prefix, Y, P, depth, classes, is_prefix_time = None):
 #      print "Classes: ", classes
-      print self.alias_dict
-      print self.back_alias_dict
-      self.classificator.print_info()
+#      print self.alias_dict
+#      print self.back_alias_dict
+#      self.classificator.print_info()
       prefix = copy.deepcopy(_prefix)
       for i in xrange(0, len(_prefix)):
         for j in xrange(0, len(self.W)):
 #          print "palias", _prefix[i][j], self.alias_dict
           if _prefix[i][j] in self.alias_dict:
             prefix[i][j] = self.alias_dict[_prefix[i][j]]
-      print self.neural.cyclic
+#      print self.neural.cyclic
       if is_prefix_time == None:
         is_prefix_time = False if self.some(self.neural.cyclic) == True else True
       prefix_vector = [ str(e)  for e in prefix ]
@@ -1367,7 +1367,7 @@ class Predictor:
 #          prefix[p] = eval(prefix_vector[p])
 #        print prefix
         prefix = [ ]
-        print res
+#        print res
         for r in res:
 #          print r.data
           prefix.append(eval(r.data))
@@ -2014,6 +2014,50 @@ def run_all_tests(rep = True):
       sys.stdout = oldstdout
     return s
 
+
+def study_thread2():
+    i = 0
+    X = [ ]
+    Y = [ ]
+    Wout = [ 1.0, 1.0 ]
+    step = [ 0.1, 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    P = [ ]
+    n = 0
+    prev_vec = None
+    v = None
+    while(True):
+#      print "before readline"
+      line = sys.stdin.readline()
+      line = line.replace('\n','')
+      line = line.replace('\r','')
+      if prev_vec == None:
+        prev_vec =[ 0, 0 ]
+      s = "[ " + str(prev_vec[1]) +"," + line + " ] "
+      print "readline ", s
+      if len(P) > 0:
+        print "my_guess:", P[1][1]
+        if str(P[1][1]) == line:
+          print "CORRECT: ",n, "out of", i-9
+          n+=1
+      prev_vec = v
+      v = eval(s)
+      X.append(v)
+      Y.append(v)
+#      print "Study:"
+#      print "X: "
+#      print X
+#      print "Y: "
+#      print Y
+      p.study(X, Y)
+      Yout = [ ]
+      P = [ ]
+      if i>=9:
+        p.predict_p([ v ], Yout, P, 2)
+        print P
+      i+=1
+
+
 if __name__ == "__main__":
 #    Y = [ [1.0 ], [ 1.0 ], [ 2.0 ],  [ 2.0 ], [ 0.0 ], [ 1.0 ], [1.0] ]
 #    Y = [ [ 1.0 ], [ 2.0 ],  [ 2.0 ]]
@@ -2023,6 +2067,8 @@ if __name__ == "__main__":
 #    exit(0)
 #    vec = [[-1,0],[0,1], [3, 0], [ 10, 10 ]]
     if len(sys.argv) > 1:
+      if sys.argv[1] == "study_thread":
+        study_thread2()
       if sys.argv[1] == "create_network":
         l = 0
         W = [ ]
