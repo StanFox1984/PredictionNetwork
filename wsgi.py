@@ -136,7 +136,7 @@ def handle_predict_set_alias(environ, predictorAllocator):
     print d
     alias_key = (d["alias_key"][0])
     alias_value = (d["alias_value"][0])
-    print alias
+    print alias_key, alias_value
     key = alias_key
     value = alias_value
     p = predictorAllocator.getPredictor(n)
