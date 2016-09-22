@@ -463,7 +463,11 @@ class FactorAnalyzer:
               prefix_states.append(Entity.generateEntity(closest_factor))
             else:
               prefix_states.append(generate_func(closest_factor))
-        return self.prob_network.generateWithProb(prefix_states, depth)
+        if depth <= len(prefix_states):
+          return prefix_states
+        res =  self.prob_network.generateWithProb(prefix_states, depth-len(prefix_states))
+        prefix_states.extend(res)
+        return prefix_states
 
 #Yj = sum (Xij Wj)
 #Err func(Wj) = sum_m( Ymj - sum_i(XmiWj) )^2    j = 0..len(X), 0..len(Y), i = range(j), m= 0..len(observations)
@@ -1334,84 +1338,11 @@ class Predictor:
         if a == True:
           return True
       return False
+
     def predict_p(self, prefix, Y, P, depth, is_prefix_time = None):
-      classes = [ ]
-      print self.neural.cyclic
-      if is_prefix_time == None:
-        is_prefix_time = False if self.some(self.neural.cyclic) == True else True
-      prefix_vector = [ str(e)  for e in prefix ]
-      if is_prefix_time == False:
-        print "Periodic"
-        res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
-        for p in xrange(0, len(prefix_vector)):
-          prefix[p] = eval(prefix_vector[p])
-        if depth > len(res):
-          res = None
-#        print res
-        for p in prefix:
-          Yout = [ 0 for i in xrange(0, len(self.W)) ]
-          appr_p = self.neural.calc_y2( p, Yout)
-          Y.append(Yout)
-          P.append(p)
-          if classes != None:
-              acc = copy.deepcopy(appr_p)
-              acc.extend(Yout)
-              classes.append(self.classificator.classify(acc))
-        if res == None:
-#          print xrange(int(prefix[0][0]), int(prefix[0][0]+depth))
-          for x in xrange(int(prefix[0][0]), int(prefix[0][0]+depth)):
-            Yout = [ 0 for i in xrange(0, len(self.W)) ]
-            appr_p = self.neural.calc_y2([ x for i in xrange(0, len(self.W)) ], Yout)
-#            print "Yout:", Yout
-            Y.append(Yout)
-            P.append([ x for i in xrange(0, len(self.W)) ])
-            if classes != None:
-              acc = copy.deepcopy(appr_p)
-              acc.extend(Yout)
-              classes.append(self.classificator.classify(acc))
-          return classes
-        for r in res:
-          Yout = [ 0 for i in xrange(0, len(self.W)) ]
-#          print r.data
-          P.append(eval(r.data))
-          appr_p = self.neural.calc_y2(eval(r.data), Yout)
-#          print "Yout:", Yout
-          Y.append(Yout)
-          if classes != None:
-              acc = copy.deepcopy(appr_p)
-              acc.extend(Yout)
-              classes.append(self.classificator.classify(acc))
-      else:
-        print "HERE:"
-        for p in prefix:
-          Yout = [ 0 for i in xrange(0, len(self.W)) ]
-          appr_p = self.neural.calc_y2( p, Yout)
-          Y.append(Yout)
-          P.append(p)
-          if classes != None:
-              acc = copy.deepcopy(appr_p)
-              acc.extend(Yout)
-              classes.append(self.classificator.classify(acc))
-        X = [ ]
-        r = [ ]
-        _prefix = prefix[len(prefix)-1]
-        XVec = copy.deepcopy(_prefix)
-        for x in xrange(0, depth):
-          for j in xrange(0, len(_prefix)):
-            XVec[j]+=1
-          X.append(copy.deepcopy(XVec))
-#        print "HERE:", X
-        for x in X:
-          Yout = [ 0 for i in xrange(0, len(self.W)) ]
-#          Yout = [ ]
-          appr_p = self.neural.calc_y2( x, Yout)
-          Y.append(Yout)
-          P.append(x)
-          if classes != None:
-              acc = copy.deepcopy(appr_p)
-              acc.extend(Yout)
-              classes.append(self.classificator.classify(acc))
-      return classes
+      _classes = [ ]
+      self.predict_p_classes(prefix, Y, P, depth, _classes, is_prefix_time)
+      return _classes
 
     def predict_p_classes(self, _prefix, Y, P, depth, classes, is_prefix_time = None):
 #      print "Classes: ", classes
@@ -1431,8 +1362,12 @@ class Predictor:
       if is_prefix_time == False or len(_prefix)==0:
         print "Periodic"
         res = self.analyzer.deduct(prefix_vector, depth, generate_entity_x )
-        for p in xrange(0, len(prefix_vector)):
-          prefix[p] = eval(prefix_vector[p])
+#        print prefix_vector
+#        for p in xrange(0, len(prefix_vector)):
+#          prefix[p] = eval(prefix_vector[p])
+#        print prefix
+        prefix = [ ]
+        print res
         for r in res:
 #          print r.data
           prefix.append(eval(r.data))
@@ -1929,6 +1864,10 @@ def weatherTest2():
     Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
     X.extend([ ["SUN_SHINE", "COLD", "SUMMER", "BAD_WEATHER"] ])
     Y.extend([ [ 10.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["RAIN", "WARM", "SUMMER", "GOOD_WEATHER"] ])
+    Y.extend([ [ 20.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["RAIN", "COLD", "SUMMER", "BAD_WEATHER"] ])
+    Y.extend([ [ 8.0 for i in xrange(0, 4) ] ])
     X.extend([ ["SUN_SHINE", "WARM", "SUMMER", "GOOD_WEATHER"] ])
     Y.extend([ [ 25.0 for i in xrange(0, 4) ] ])
     X.extend([ ["SUN_SHINE", "WARM", "WINTER", "BAD_WEATHER"] ])
@@ -1939,7 +1878,7 @@ def weatherTest2():
     Yout = [ ]
     P = [ ]
     _classes = [ ]
-    p.predict_p_classes([ ["SUN_SHINE", "COLD", 200, "BAD_WEATHER"] ], Yout, P, 4, _classes)
+    p.predict_p_classes([ [2000, "COLD", 20000, "BAD_WEATHER"] ], Yout, P, 4, _classes)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -1949,13 +1888,37 @@ def weatherTest2():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
-    if len(P) < 4:
-      print "Wrong P"
+    if len(P) != 5:
+      print "Wrong P, should be 5", len(P)
       return False
     if P[0][2] != "SUMMER" or abs(Yout[0][0] - 10.0) > 5:
       print "Wrong guess ", P[0][2]
       return False
-    if len(p.classificator.clusters) != 4:
+    if len(p.classificator.clusters) != 6:
+      print "Wrong classes number", len(p.classificator.clusters)
+      for c in p.classificator.clusters:
+        print str(c)
+      return False
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([ ["SUN_SHINE", "WARM", 500000, "BAD_WEATHER"] ], Yout, P, 2, _classes)
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    if len(P) != 3:
+      print "Wrong P, should be 3", len(P)
+      return False
+    if P[0][2] != "WINTER" or abs(Yout[0][0] - 5.0) > 1:
+      print "Wrong guess ", P[0][2]
+      return False
+    if len(p.classificator.clusters) != 6:
       print "Wrong classes number", len(p.classificator.clusters)
       for c in p.classificator.clusters:
         print str(c)
@@ -2108,7 +2071,7 @@ if __name__ == "__main__":
       exit(0)
     run_all_tests(False)
 #    weatherTest2()
-#    exit(0)
+    exit(0)
 #    linearTest()
     exit(0)
 #    time.sleep(5)
