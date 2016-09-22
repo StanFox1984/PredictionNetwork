@@ -180,9 +180,19 @@ def handle_predict(environ, predictorAllocator):
     d = parse_qs(s1)
 #    s += str(d)
 #    s += d["W"][0]
+    X = [ ]
     n = eval(d["n"][0])
     depth = eval(d["depth"][0])
-    X = eval(d["X"][0])
+    _X = (d["X"][0])
+    if (_X.count('[') == 0):
+      _X = eval('[ ' + _X + ' ]')
+      X.append(_X)
+    elif (_X.count('[') == 1):
+      _X = eval(_X)
+      X.append(_X)
+    elif (_X.count('[') == 2):
+      _X = eval(_X)
+      X.extend(_X)
     Yout = [ ]
     P = [ ]
     _classes = [ ]
