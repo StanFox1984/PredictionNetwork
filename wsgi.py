@@ -229,6 +229,17 @@ def handle_predict_remove(environ, predictorAllocator):
   response_body = '<html><body>' + s + '</body></html>'
   return response_body
 
+def handle_run_tests(environ):
+  s = ""
+  s += predict.run_all_tests()
+  s = s.replace("\n"," <br> ")
+  s = s.replace("\r"," <br> ")
+  ctype = 'text/html'
+  s = s.replace("\n"," <br> ")
+  s = s.replace("\r"," <br> ")
+  response_body = '<html><body>' + s + '</body></html>'
+  return response_body
+
 def application(environ, start_response):
     global s
     ctype = 'text/html'
@@ -238,12 +249,7 @@ def application(environ, start_response):
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
     if environ['PATH_INFO'] == '/tests':
-        s += predict.run_all_tests()
-        s = s.replace("\n"," <br> ")
-        s = s.replace("\r"," <br> ")
-        ctype = 'text/html'
-        s = s.replace("\n"," <br> ")
-        s = s.replace("\r"," <br> ")
+        response_body = handle_run_tests(environ)
     if environ['PATH_INFO'] == '/predict_list':
         response_body = handle_predict_list(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_create':
@@ -280,6 +286,9 @@ def application(environ, start_response):
         if "predict_set_alias" in d:
             response_body = handle_predict_set_alias(environ, predictorAllocator)
             c = 1
+        if "predict_run_tests" in d:
+            response_body = handle_run_tests(environ)
+            c = 1
         if c == 0:
             response_body = '<html><body>' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
@@ -306,7 +315,8 @@ def application(environ, start_response):
                             <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
                             <input type="submit" value="predict" name="predict" />
                             <input type="submit" value="predict_remove" name="predict_remove" /><br>
-                            <input type="submit" value="predict_list" name="predict_list" />
+                            <input type="submit" value="predict_list" name="predict_list" /><br>
+                            <input type="submit" value="predict_run_tests" name="predict_run_tests" />
                             </form>'''
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
