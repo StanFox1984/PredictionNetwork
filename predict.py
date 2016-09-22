@@ -381,45 +381,10 @@ class FactorManager:
         return self.bit_array.getAsOne()
 
 
-
-
-
-SUN=1
-RAIN=2
-SNOW=4
-HOT=8
-COLD=16
-wi = 0
-total = 0
-probs = 0
-
 def _distance_func(factor1, factor2):
     seq=difflib.SequenceMatcher(a=str(factor1).lower(), b=str(factor2).lower())
     r = int(seq.ratio()*100.0)
     return r
-
-
-def generate_entity_weather(factor):
-    global wi
-    global total
-    global probs
-    if wi == 0:
-      wi = [ 1 for i in xrange(0,32) ]
-    if probs == 0:
-      probs = [ 0 for i in xrange(0,32) ]
-    total += 1
-    s = ""
-    if factor & SUN:
-        s += "SUN "
-    if factor & RAIN:
-        s += "RAIN "
-    if factor & SNOW:
-        s += "SNOW "
-    if factor & HOT:
-        s += "HOT "
-    if factor & COLD:
-        s += "COLD "
-    return Entity(factor, s)
 
 def prefix_match_len(str1, str2):
     l = min([len(str1), len(str2)])
@@ -499,12 +464,6 @@ class FactorAnalyzer:
             else:
               prefix_states.append(generate_func(closest_factor))
         return self.prob_network.generateWithProb(prefix_states, depth)
-
-def sunny():
-    return 1
-
-def rain_or_not():
-    return 1
 
 #Yj = sum (Xij Wj)
 #Err func(Wj) = sum_m( Ymj - sum_i(XmiWj) )^2    j = 0..len(X), 0..len(Y), i = range(j), m= 0..len(observations)
@@ -1026,22 +985,6 @@ class NeuralLinearComposedNetwork:
         for y in  xrange(0, len(Y)):
           Y[y] = round(copy.deepcopy(YY[y]),2)
       return XX
-
-
-def convert_array_str(s):
-    arr = [ ]
-    acc = ""
-    for a in s[:-1]:
-      acc += a
-      print acc
-      if len(acc) >= 1:
-        if acc != '':
-          arr.append(int(acc))
-        acc = ""
-    if acc != '':
-      arr.append(int(acc))
-    return arr
-
 
 def getMean(mvec):
 #    print mvec
@@ -1844,30 +1787,6 @@ def logicTest2():
 #    p3.neural.pool.wait_ready()
 #    p3.neural.pool.stop()
 
-
-def study_thread(p, f):
-    i = 0
-    X = [ ]
-    Y = [ ]
-    while(True):
-      print "before readline"
-      line = f.readline()
-      print "readline ", line
-      s = "[ " + line + " ] "
-      v = eval(s)
-      if (i & 1) == 0:
-        X.append(v)
-        print X, i
-      else:
-        Y.append(v)
-        print "Study:"
-        print "X: "
-        print X
-        print "Y: "
-        print Y
-        p.study(X, Y)
-      i+=1
-
 def classifierTest():
     print "Classifier test begin"
     circle = [ ]
@@ -2189,8 +2108,8 @@ if __name__ == "__main__":
       exit(0)
     run_all_tests(False)
 #    weatherTest2()
-    exit(0)
-    linearTest()
+#    exit(0)
+#    linearTest()
     exit(0)
 #    time.sleep(5)
     periodicTest()
