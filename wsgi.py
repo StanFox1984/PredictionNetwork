@@ -108,9 +108,29 @@ def handle_predict_study(environ, predictorAllocator):
     d = parse_qs(s1)
 #   s += str(d)
 #   s += d["W"][0]
+    X = [ ]
+    Y = [ ]
     n = eval(d["n"][0])
-    X = eval(d["X"][0])
-    Y = eval(d["Y"][0])
+    _X = (d["X"][0])
+    _Y = (d["Y"][0])
+    if (_X.count('[') == 0):
+      _X = eval('[ ' + _X + ' ]')
+      X.append(_X)
+    elif (_X.count('[') == 1):
+      _X = eval(_X)
+      X.append(_X)
+    elif (_X.count('[') == 2):
+      _X = eval(_X)
+      X.extend(_X)
+    if (_Y.count('[') == 0):
+      _Y = eval('[ ' + _Y + ' ]')
+      Y.append(_Y)
+    elif (_Y.count('[') == 1):
+      _Y = eval(_Y)
+      Y.append(_Y)
+    elif (_Y.count('[') == 2):
+      _Y = eval(_Y)
+      Y.extend(_Y)
     p = predictorAllocator.getPredictor(n)
     if p != None:
       p.study(X,Y)
