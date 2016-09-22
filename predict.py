@@ -243,7 +243,7 @@ def getArrCorrelations( X, Y):
       if prev_X != None:
         for j in xrange(0, len(X[i])):
           if prev_X[j] != X[i][j]:
-            Corr[j] += getVecDiffAbs(prev_Y, Y[i])
+            Corr[j] += getVecDiffAbs(prev_Y, Y[i])/getVecDiffAbs(prev_X, X[i])
       prev_X = X[i]
       prev_Y = Y[i]
     return Corr
@@ -421,6 +421,16 @@ def generate_entity_weather(factor):
         s += "COLD "
     return Entity(factor, s)
 
+def prefix_match_len(str1, str2):
+    l = min([len(str1), len(str2)])
+    n = 0
+    for i in xrange(0, l):
+      if str1[i] == str2[i]:
+        n+=1
+      else:
+        break
+    return n
+
 def generate_entity_x(factor):
     return Entity(factor, factor)
 
@@ -455,6 +465,7 @@ class FactorAnalyzer:
         distance_metric = 0
         closest_factor  = None
         prefix_states = [ ]
+        m0 = 0
         i = 0
         for factor in prefix_factors:
             if factor not in self.factor_map:
@@ -463,7 +474,8 @@ class FactorAnalyzer:
 #                    print el
                     if len(self.factor_outcome_list) > 0:
                       d = getVecDiffAbsWithCorr(eval(el), eval(factor), self.corr)
-                      print "DiffAbs:", d, eval(el), eval(factor), self.corr
+                      m = prefix_match_len(el, factor)
+                      print "DiffAbs:", d, eval(el), eval(factor), self.corr, m
                     else:
                       if distance_func != None:
                         d = distance_func(el, factor)
@@ -472,6 +484,11 @@ class FactorAnalyzer:
                     if closest_factor == None or d < distance_metric:
                         closest_factor = el
                         distance_metric = d
+                        m0 = m
+                    elif d == distance_metric and m > m0:
+                        closest_factor = el
+                        distance_metric = d
+                        m0 = m
             else:
                 closest_factor = factor
             print "closest was ", closest_factor
@@ -1074,9 +1091,10 @@ class Cluster(object):
       print vec
       d1 = getVecDelta(vec, self.mean)
       for j in xrange(0, len(d1)):
+        self.err = abs(self.mean[j]/2)
         print "ee:", "err:", self.err, "diff with delta:", (d1[j] - self.av_delta[j]), "delta:", d1[j], "av_delta:", self.av_delta[j], "vec:", vec[j]
         if (d1[j] - self.av_delta[j]) > self.err:
-          print "Non Conforms"
+          print "Non Conforms", (d1[j] - self.av_delta[j]), self.err, (d1[j] - self.av_delta[j]) > self.err
           return False
       print "Conforms"
       return True
@@ -1963,6 +1981,14 @@ def weatherTest2():
     Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
     X.extend([ ["SUN_SHINE", "WARM", "WINTER", "BAD_WEATHER"] ])
     Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "COLD", "SUMMER", "BAD_WEATHER"] ])
+    Y.extend([ [ 10.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "WARM", "SUMMER", "GOOD_WEATHER"] ])
+    Y.extend([ [ 25.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "WARM", "WINTER", "BAD_WEATHER"] ])
+    Y.extend([ [ 5.0 for i in xrange(0, 4) ] ])
+    X.extend([ ["SUN_SHINE", "COLD", "WINTER", "GOOD_WEATHER"] ])
+    Y.extend([ [ -20.0 for i in xrange(0, 4) ] ])
     p.study(X,Y)
     Yout = [ ]
     P = [ ]
