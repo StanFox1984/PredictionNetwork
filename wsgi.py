@@ -68,7 +68,7 @@ def handle_predict_list(environ, predictorAllocator):
       s1 = s1.replace(">", " ")
       s+=s1
     script = '''
-                alert("predict_list!!!");
+                //alert("predict_list!!!");
                 function moveRight(){
                   document.body.style.left = parseInt(document.body.style.left) + 10 + 'px';
                 }
@@ -134,10 +134,11 @@ def handle_predict_set_alias(environ, predictorAllocator):
 #   s += d["W"][0]
     n = eval(d["n"][0])
     print d
-    alias = eval(d["alias"][0])
+    alias_key = (d["alias_key"][0])
+    alias_value = (d["alias_value"][0])
     print alias
-    key = alias["key"]
-    value = alias["value"]
+    key = alias_key
+    value = alias_value
     p = predictorAllocator.getPredictor(n)
     if p != None:
       p.set_alias(key, value)
@@ -263,7 +264,8 @@ def application(environ, start_response):
                             <input type="text" value="X" name="X" /><br>
                             <input type="text" value="Y" name="Y" /><br>
                             <input type="text" value="depth" name="depth" /><br>
-                            <input type="text" value="alias" name="alias" /><br>
+                            <input type="text" value="alias_key" name="alias_key" /><br>
+                            <input type="text" value="alias_value" name="alias_value" /><br>
                             <input type="text" value="W" name="W" /><br>
                             <input type="text" value="step" name="step" /><br>
                             <input type="text" value="points_per_network" name="points_per_network" /><br>
