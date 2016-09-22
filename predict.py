@@ -2059,27 +2059,47 @@ def run_all_tests(rep = True):
       mystdout = StringIO()
       sys.stdout = mystdout
 #    print "sdsds"
-    weatherTest()
+    res = True
+    res = weatherTest()
+    if res != True:
+      print "weatherTest FAILED!"
     #exit(0)
-    linearTest()
+    res = linearTest()
+    if res != True:
+      print "linearTest FAILED!"
 #    exit(0)
 #    time.sleep(5)
-    periodicTest()
+    res = periodicTest()
+    if res != True:
+      print "periodicTest FAILED!"
 #    exit(0)
 #    time.sleep(5)
-    periodicRandTest()
+    res = periodicRandTest()
+    if res != True:
+      print "periodicRandTest FAILED!"
 #    exit(0)
 #    time.sleep(5)
-    logicTest()
+    res = logicTest()
+    if res != True:
+      print "logicTest FAILED!"
 #    exit(0)
 #    time.sleep(5)
-    classifierTest()
+    res = classifierTest()
+    if res != True:
+      print "classifierTest FAILED!"
 #    time.sleep(5)
-    logicTest2()
+    res = logicTest2()
+    if res != True:
+      print "logicTest2 FAILED!"
 #    exit(0)
 #    time.sleep(5)
-    classifierTest2()
-    weatherTest2()
+    res = classifierTest2()
+    if res != True:
+      print "classifierTest2 FAILED!"
+
+    res = weatherTest2()
+    if res != True:
+      print "weatherTest2 FAILED!"
     if rep:
       s = mystdout.getvalue()
 #    except e:
