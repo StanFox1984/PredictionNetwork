@@ -1248,7 +1248,7 @@ class Predictor:
     def predict_p_classes(self, _prefix, Y, P, depth, classes, is_prefix_time = None):
       prefix = copy.deepcopy(_prefix)
       for i in xrange(0, len(_prefix)):
-        for j in xrange(0, len(self.W)):
+        for j in xrange(0, len(_prefix[i])):
           if _prefix[i][j] in self.alias_dict:
             prefix[i][j] = self.alias_dict[_prefix[i][j]]
       if is_prefix_time == None:
