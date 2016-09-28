@@ -298,6 +298,8 @@ def application(environ, start_response):
 
     ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
+    if len(response_body) == 0:
+      response_body = '<html><body style="background-color:powderblue;">' + '</body></html>'
     response_body += '''<br><form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
                             <input type="text" value="X" name="X" /><br>
