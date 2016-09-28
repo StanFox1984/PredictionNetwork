@@ -1845,10 +1845,11 @@ def predict_thread(p, f, f2):
       f2.write(str(Y)+"\n")
       f2.flush()
 
-def run_all_tests(rep = True):
+def run_all_tests(_rep = True):
     mystdout = None
     oldstdout = None
     s = ""
+    rep = True
     if rep:
       oldstdout = sys.stdout
     if rep:
@@ -1902,6 +1903,8 @@ def run_all_tests(rep = True):
       s = "All test cases PASSED \n" + s
     if rep:
       sys.stdout = oldstdout
+    if _rep == False:
+      print s
     return s
 
 
