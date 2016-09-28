@@ -32,6 +32,7 @@ class ProbTree:
         self.probs = { }
         self.r1 = { }
         self.r2 = { }
+        self.first = False
         self.stamp = time.time()
         self.total_hits = 0
         self.parent = parent
@@ -148,6 +149,7 @@ class ProbNetwork:
             p = ProbTree(self)
             p.me = in_arr[0]
             p.data = in_arr[0][1]
+            p.first = True
             self.probnodes[in_arr[0][0]] = p
         p.addOutcome(in_arr[1:])
     def printOutcomes(self, key = None):
@@ -157,14 +159,16 @@ class ProbNetwork:
         else:
             if key in self.probnodes:
                 self.probnodes[key].printOutcomes()
-    def getMostProbable(self):
+    def getMostProbable(self, endpoint = False):
         max_tree = None
         for p in self.probnodes:
+#          print self.probnodes[p].parent.data
           if max_tree != None:
-            if self.probnodes[p].total_hits > max_tree.total_hits:
+            if self.probnodes[p].total_hits > max_tree.total_hits and self.probnodes[p].first == True:
               max_tree = self.probnodes[p]
           else:
-            max_tree = self.probnodes[p]
+            if self.probnodes[p].first == True:
+              max_tree = self.probnodes[p]
         return max_tree
 
     def generateWithProb(self, in_prefix, max_len):
@@ -1367,6 +1371,47 @@ def quadraticTest():
     #p.neural.pool.wait_ready()
     #p.neural.pool.stop()
 
+def quadraticTest2():
+    print "Quadratic test2 begin"
+    W = [ 1.0, 1.0 ]
+    x0 = [ 1.0, 2.0 ]
+    y0 = [ 9.0, 9.0 ]
+    x1 = [ 5.0, 6.0 ]
+    y1 = [ 121.0, 121.0 ]
+    x2 = [ 9.0, 10.0 ]
+    y2 = [ 19.0*19.0, 19.0*19.0 ]
+    x3 = [ 13.0, 14.0 ]
+    y3 = [ 27.0*27.0, 27.0*27.0 ]
+    X = [ x0, x1, x2, x3 ]
+    Y = [ y0, y1, y2, y3 ]
+    X.append([ 20.0, 20.0 ])
+    Y.append([ 1600.0, 1600.0 ])
+#    Y.append([ 36.0, 36.0 ])
+    P = [ ]
+#    X = [ y0, y1, y2 ]
+#    Y = [ x0, x1, x2 ]
+    grad = [ 0, 0 ]
+    Wout = [ W[0], W[1] ]
+    step = [ 0.01, 0.01 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    p.study(X, Y)
+    Yout = [ ]
+    p.predict_p([], Yout, P, 6)
+    print "Approximated Y:", Yout
+    print "Approximated X:", P
+    print "Y:", Y
+    print "X:", X
+    print "Quadratic test end"
+    for p in xrange(0, len(P)-1):
+      print P[p]
+      print Yout[p][0], pow(P[p][0] +P[p][1],2)
+      if abs(Yout[p][0] - pow(P[p][0] +P[p][1],2)) > 1:
+        return False
+    print "Quadratic test2 PASSED"
+    return True
+    #p.neural.pool.wait_ready()
+    #p.neural.pool.stop()
+
 def periodicTest():
     P = [ ]
 #    X = [ y0, y1, y2 ]
@@ -1816,6 +1861,9 @@ def run_all_tests(rep = True):
     res = quadraticTest()
     if res != True:
       print "quadraticTest FAILED!"
+    res = quadraticTest2()
+    if res != True:
+      print "quadraticTest2 FAILED!"
     res = periodicTest()
     if res != True:
       print "periodicTest FAILED!"
