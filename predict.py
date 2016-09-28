@@ -1856,37 +1856,50 @@ def run_all_tests(rep = True):
       sys.stdout = mystdout
     res = True
     res = weatherTest()
+    all_pass = True
     if res != True:
       print "weatherTest FAILED!"
+      all_pass = False
     res = quadraticTest()
     if res != True:
       print "quadraticTest FAILED!"
+      all_pass = False
     res = quadraticTest2()
     if res != True:
       print "quadraticTest2 FAILED!"
+      all_pass = False
     res = periodicTest()
     if res != True:
       print "periodicTest FAILED!"
+      all_pass = False
     res = periodicRandTest()
     if res != True:
       print "periodicRandTest FAILED!"
+      all_pass = False
     res = logicTest()
     if res != True:
       print "logicTest FAILED!"
+      all_pass = False
     res = classifierTest()
     if res != True:
       print "classifierTest FAILED!"
+      all_pass = False
     res = logicTest2()
     if res != True:
       print "logicTest2 FAILED!"
+      all_pass = False
     res = classifierTest2()
     if res != True:
       print "classifierTest2 FAILED!"
+      all_pass = False
     res = weatherTest2()
     if res != True:
       print "weatherTest2 FAILED!"
+      all_pass = False
     if rep:
       s = mystdout.getvalue()
+    if all_pass == True:
+      s = "All test cases PASSED \n" + s
     if rep:
       sys.stdout = oldstdout
     return s
