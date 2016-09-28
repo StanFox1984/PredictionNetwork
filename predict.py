@@ -13,6 +13,7 @@ from multiprocessing.managers import BaseManager
 from multiprocessing import Pool
 from tinythreadpool import TinyThreadPool
 from StringIO import StringIO
+from datetime import datetime
 import sys
 
 #from theano import *
@@ -457,7 +458,9 @@ class FactorAnalyzer:
 #d(Ymj^2 - 2 Ymj sum_i(XmiWj) + (sum_i(XmiWj)^2)/dWj = sum_m(-2 Ymj sum_i(Xmi) + sum_i(Xmi^2*2*Wj))
 
 def array_sum(arr):
-    return sum(arr)
+    r = sum(arr)
+#    print "array_sum res:",r, "args:", arr
+    return r
 
 def array_sum_theano(arr):
     v = T.vector('v')
@@ -473,7 +476,9 @@ def array_sum_i_theano(arr, i):
     return array_sum_theano(arr[i])
 
 def multiply_scalars(a1, a2):
-    return a1*a2
+    r = a1*a2
+#    print "multiply_scalars res:", r, "args:", a1, a2
+    return r
 
 def multiply_scalars_theano(a1, a2):
     x = T.dscalar('x')
@@ -484,7 +489,9 @@ def multiply_scalars_theano(a1, a2):
     return res
 
 def multiply_scalar_array(a1, arr1):
-    return [ a1*a for a in arr1 ]
+    r = [ a1*a for a in arr1 ]
+#    print "multiply_scalar_array res:", r, "args:", a1, arr1
+    return r
 
 def multiply_scalar_array_theano(a1, arr1):
     x = T.dscalar('x')
@@ -506,20 +513,25 @@ def array_sum_multiply_theano(arr1, arr2):
     return res
 
 def array_sum_multiply_i(arr1, arr2, i):
-    return array_sum([ arr1[i][j]*arr2[i][j] for j in xrange(0, len(arr1[i])) ])
+    r = array_sum([ arr1[i][j]*arr2[i][j] for j in xrange(0, len(arr1[i])) ])
+#    print "array_sum_multiply_i res:", r, "args: ", arr1, arr2, i
+    return r
 
 def array_sum_multiply_i_theano(arr1, arr2, i):
     return array_sum_multiply_theano(arr1[i], arr2[i])
 
 def gradient(Y, X, W, grad):
     for j in xrange(0, len(W)):
+      grad[j] = 0
       for m in xrange(0, len(Y)):
-        grad[j] = multiply_scalars(2.0, array_sum_multiply_i(X, Y, m)) + array_sum(multiply_scalar_array(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
+        g = multiply_scalars(2.0, array_sum_multiply_i(X, Y, m)) + array_sum(multiply_scalar_array(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
+#        print "gradient calc res: ", g
+        grad[j] += g
 
 def gradient_theano(Y, X, W, grad):
     for j in xrange(0, len(W)):
       for m in xrange(0, len(Y)):
-        grad[j] = multiply_scalars_theano(2.0, array_sum_multiply_i_theano(X, Y, m)) + array_sum_theano(multiply_scalar_array_theano(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
+        grad[j] += multiply_scalars_theano(2.0, array_sum_multiply_i_theano(X, Y, m)) + array_sum_theano(multiply_scalar_array_theano(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
 
 class NeuralLinearLayer:
     def __init__(self, W0, step = None, max_iterations = 10):
@@ -531,6 +543,20 @@ class NeuralLinearLayer:
         self.step = [ 0.001 for n in self.W ]
       self.max_iterations = max_iterations
       self.WC = [ 0.0 for i in xrange(0,len(self.W)) ]
+      self.step_multiplier = 2
+      self.step_multiplier_local_opt = 8
+      self.err = 0.0000001
+      self.delay_tolerance = 50000
+
+    def set_multipliers(self, step_multiplier, step_multiplier_local_opt):
+      self.step_multiplier = step_multiplier
+      self.step_multiplier_local_opt = step_multiplier_local_opt
+
+    def set_err(self, err):
+      self.err = err
+
+    def set_delay_tolerance(self, delay):
+      self.delay_tolerance = delay
 
     def study2(self, X, Y):
       grad = [ 0 for n in self.W ]
@@ -540,11 +566,20 @@ class NeuralLinearLayer:
       self.last_err_func = None
       self.n = None
       grad_zero = True
+      n = 0
       iterations_left = self.max_iterations
+      last_grad = None
+      first = True
+      old_t = datetime.now()
       while True and iterations < iterations_left:
-        if iterations >= (iterations_left/4):
+        if iterations >= (iterations_left/4) or ((datetime.now() - old_t).microseconds>self.delay_tolerance):
+          old_t = datetime.now()
           for l in xrange(0, len(self.step)):
-            self.step[l] *= 2
+            if grad_zero != True:
+              self.step[l] *= self.step_multiplier
+            else:
+              self.step[l] *= self.step_multiplier_local_opt
+#            print "step_increased ", self.step, "error: ", n, "W:", self.W, grad, last_grad
           overall_iterations += iterations
           iterations_left -= iterations
           for h in xrange(0, len(X)):
@@ -553,26 +588,35 @@ class NeuralLinearLayer:
             _Y[h] = copy.deepcopy(t)
           iterations = 0
         g = self.calc_gradient2(X, Y, grad)
-        grad = copy.deepcopy(g)
+#        grad = copy.deepcopy(g)
         for j in xrange(0, len(self.W)):
+#          if last_grad[j] !=0 and last_grad[j]!=grad[j]:
+#            for l in xrange(0, len(self.step)):
+#              self.step[l] /= self.step_multiplier
+#            print "Gradient change detected, decreasing step to", self.step, n, last_grad, grad
           Wout[j] = self.W[j]
           self.W[j] += self.step[j]*grad[j]
         n = self.calc_err_func2(X, Y)
-        for h in grad:
-          if h != 0:
+        grad_zero = True
+        for h in xrange(0, len(grad)):
+          if int(grad[h]) != 0:
             grad_zero = False
             break
         if grad_zero == True:
-          if n == 0:
+          if n <= self.err:
             break
           else:
-            for l in xrange(0, len(self.step)):
-              self.step[l] *= 8
             for j in xrange(0, len(self.W)):
               Wout[j] = self.W[j]
-              self.W[j] += self.step[j]*grad[j]
+              if last_grad != None:
+                self.W[j] += self.step[j]*(last_grad[j])
+              else:
+                self.W[j] += self.step[j]
               n = self.calc_err_func2(X, Y)
-        if self.last_err_func == None or n <= self.last_err_func:
+#            print "step_increased opt", self.step, n, grad, self.W, last_grad
+        else:
+          last_grad = copy.deepcopy(grad)
+        if (self.last_err_func == None or n <= self.last_err_func) and n >= self.err:
           self.last_err_func = n
         else:
           for j in xrange(0,len(self.W)):
@@ -609,7 +653,7 @@ class NeuralLinearLayer:
           s = 0.0
           for i in xrange(0, len(X[m])):
             s += X[m][i]*self.W[j]
-          s+=self.WC[j]
+#          s+=self.WC[j]
 
           Err += pow(( Y[m][j] - s ), 2)
       return Err
@@ -626,6 +670,11 @@ class NeuralLinearNetwork:
           self.layers.append(NeuralLinearLayer(W, step, max_iterations))
       self.sp = sp
       self.last_yout = None
+
+    def set_multipliers(self, step_multiplier, step_multiplier_local_opt):
+      for i in xrange(0, len(self.layers)):
+          self.layers[i].set_multipliers(step_multiplier, step_multiplier_local_opt)
+
     def study(self, X, Y):
       Y0 = copy.deepcopy(Y)
       X0 = copy.deepcopy(X)
@@ -770,6 +819,8 @@ class NeuralLinearComposedNetwork:
       self.pool = None
       self.acc_x = [ ]
       self.acc_y = [ ]
+      self.step_multiplier = 2
+      self.step_multiplier_local_opt = 8
 
     def autoCorrelation( self, Y, n ):
       return autoCorrelation(Y, n)
@@ -779,6 +830,10 @@ class NeuralLinearComposedNetwork:
 
     def nstudy_wrapper(self, network, X, Y):
       network.study(X, Y)
+
+    def set_multipliers(self, step_multiplier, step_multiplier_local_opt):
+      self.step_multiplier = step_multiplier
+      self.step_multiplier_local_opt = step_multiplier_local_opt
 
     def study(self, X, Y):
       self.acc_y.extend(Y)
@@ -825,6 +880,7 @@ class NeuralLinearComposedNetwork:
             else:
               self.networks.append( ( mn, mx, createNetworkForNode(('', 50000), 'abc', self.W0, self.num_layers, self.step, self.max_iterations) ) )
 
+            self.networks[len(self.networks)-1][2].set_multipliers(self.step_multiplier, self.step_multiplier_local_opt)
             if self.parallelize == False:
               self.networks[len(self.networks)-1][2].study(added_X, added_Y)
             else:
@@ -1145,6 +1201,8 @@ class Predictor:
     def set_alias( self, key, value):
       self.alias_dict[key] = value
       self.back_alias_dict[value] = key
+    def set_step_multipliers(self, step_multiplier, step_multiplier_local_opt):
+      self.neural.set_multipliers(step_multiplier, step_multiplier_local_opt)
     def study(self, _X, _Y):
       X = copy.deepcopy(_X)
       Y = copy.deepcopy(_Y)
@@ -1317,11 +1375,12 @@ def periodicTest():
     grad = [ 0, 0 ]
     Wout = [ W[0], W[1] ]
     step = [ 0.01, 0.01 ]
-    print "Periodic(sin emulate) test begin"
+    print "Periodic(sin) test begin"
     p2 = Predictor(1, Wout, 3, step, 1000000)
     Y = [ [math.sin(i), math.sin(i)] for i in xrange(0,10) ]
     X = [ [ i, i ] for i in xrange(0,10) ]
     print Y, [ [i, i] for i in xrange(0,10) ]
+    p2.set_step_multipliers(8, 16)
     p2.study([ [i, i] for i in xrange(0,10) ], Y)
     Yout = [ ]
     P = [ ]
@@ -1355,12 +1414,13 @@ def periodicRandTest():
     grad = [ 0, 0 ]
     Wout = [ W[0], W[1] ]
     step = [ 0.01, 0.01 ]
-    print "Periodic(sin emulate) test begin"
+    print "Periodic(sin+rand) test begin"
     p2 = Predictor(1, Wout, 3, step, 1000000)
     y= [ math.sin(i)+random.randint(0,100) for i in xrange(0,10) ]
     Y = [ [y[i],y[i]] for i in xrange(0,10) ]
     X = [ [ i, i ] for i in xrange(0,10) ]
     print Y, [ [i, i] for i in xrange(0,10) ]
+    p2.set_step_multipliers(8, 16)
     p2.study([ [i, i] for i in xrange(0,10) ], Y)
     Yout = [ ]
     P = [ ]
@@ -1374,9 +1434,9 @@ def periodicRandTest():
     for p in xrange(0, len(P)):
       print P[p]
       print Yout[p][0], Y[p][0], P[p][0]
-      if abs(Yout[p][0] - Y[p][0]) > 0.1:
+      if abs(Yout[p][0] - Y[p][0]) > 0.5:
         return False
-    print "Periodic rand test PASSED"
+    print "Periodic sin+rand test PASSED"
     return True
     #p2.neural.pool.wait_ready()
     #p2.neural.pool.stop()
