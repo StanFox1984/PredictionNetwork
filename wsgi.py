@@ -76,7 +76,7 @@ def handle_predict_list(environ, predictorAllocator):
                 document.body.style.left = '0px';
                 //setInterval(moveRight, 1000);
              '''
-    response_body = '<html><body>' + s + '<script>\n'+script+'\n</script></body></html>'
+    response_body = '<html><body style="background-color:powderblue;">' + s + '<script>\n'+script+'\n</script></body></html>'
     return response_body
 
 def handle_predict_create(environ, predictorAllocator):
@@ -96,7 +96,7 @@ def handle_predict_create(environ, predictorAllocator):
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
     s = s.replace("\r"," <br> ")
-    response_body = '<html><body>' + s + '</body></html>'
+    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
   return response_body
 
 def handle_predict_study(environ, predictorAllocator):
@@ -140,7 +140,7 @@ def handle_predict_study(environ, predictorAllocator):
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
     s = s.replace("\r"," <br> ")
-    response_body = '<html><body>' + s + '</body></html>'
+    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
     return response_body
 
 def handle_predict_set_alias(environ, predictorAllocator):
@@ -168,7 +168,7 @@ def handle_predict_set_alias(environ, predictorAllocator):
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
     s = s.replace("\r"," <br> ")
-    response_body = '<html><body>' + s + '</body></html>'
+    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
     return response_body
 
 def handle_predict(environ, predictorAllocator):
@@ -213,7 +213,7 @@ def handle_predict(environ, predictorAllocator):
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
     s = s.replace("\r"," <br> ")
-    response_body = '<html><body>' + s + '</body></html>'
+    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
     return response_body
 
 def handle_predict_remove(environ, predictorAllocator):
@@ -226,7 +226,7 @@ def handle_predict_remove(environ, predictorAllocator):
   ctype = 'text/html'
   s = s.replace("\n"," <br> ")
   s = s.replace("\r"," <br> ")
-  response_body = '<html><body>' + s + '</body></html>'
+  response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
   return response_body
 
 def handle_run_tests(environ):
@@ -237,7 +237,7 @@ def handle_run_tests(environ):
   ctype = 'text/html'
   s = s.replace("\n"," <br> ")
   s = s.replace("\r"," <br> ")
-  response_body = '<html><body>' + s + '</body></html>'
+  response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
   return response_body
 
 def application(environ, start_response):
@@ -290,7 +290,7 @@ def application(environ, start_response):
             response_body = handle_run_tests(environ)
             c = 1
         if c == 0:
-            response_body = '<html><body>' + s + '</body></html>'
+            response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
     elif environ['PATH_INFO'] == '/env':
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
