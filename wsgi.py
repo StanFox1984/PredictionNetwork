@@ -189,7 +189,8 @@ def handle_predict(environ, predictorAllocator):
       X.append(_X)
     elif (_X.count('[') == 1):
       _X = eval(_X)
-      X.append(_X)
+      if len(_X) > 0:
+        X.append(_X)
     elif (_X.count('[') == 2):
       _X = eval(_X)
       X.extend(_X)
