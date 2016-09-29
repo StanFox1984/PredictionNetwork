@@ -164,10 +164,10 @@ class ProbNetwork:
         for p in self.probnodes:
 #          print self.probnodes[p].parent.data
           if max_tree != None:
-            if self.probnodes[p].total_hits > max_tree.total_hits and self.probnodes[p].first == True:
+            if (self.probnodes[p].total_hits > max_tree.total_hits and self.probnodes[p].first == True) \
+               or (max_tree.first == False and self.probnodes[p].first == True):
               max_tree = self.probnodes[p]
           else:
-            if self.probnodes[p].first == True:
               max_tree = self.probnodes[p]
         return max_tree
 
