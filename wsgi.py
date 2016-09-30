@@ -320,13 +320,13 @@ def application(environ, start_response):
                             <input type="submit" value="predict_remove" name="predict_remove" />
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
-                            <button value="fill_default_for_create" name="fill_for_create" onclick="fill_def_values_create()" />
+                            <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
                             </form>
                             <script>
                               function fill_def_values_create()
                               {
                                   alert("!");
-                                  document.getElementById("W").value = "[ 0.1, 0.1 ]";
+                                  document.getElementsByName("W")[0].value = "[ 0.1, 0.1 ]";
                               }
                             </script>
                             '''
