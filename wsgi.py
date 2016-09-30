@@ -321,12 +321,12 @@ def application(environ, start_response):
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
                             </form>
-                            Neural network dimensions: <input type="text" value="2" name="dimensions" /><br>
+                            Neural network dimensions: <br><input type="text" value="2" name="dimensions" /><br>
                             <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
                             <script>
                               function fill_def_values_create()
                               {
-                                  alert(document.getElementsByName("dimensions")[0].value);
+//                                  alert(document.getElementsByName("dimensions")[0].value);
                                   var dimensions = parseInt(document.getElementsByName("dimensions")[0].value);
 
                                   var W = "[ ";
@@ -346,7 +346,7 @@ def application(environ, start_response):
                                   }
                                   W += " ] ";
                                   step += " ] ";
-                                  alert(W);
+//                                alert(W);
                                   document.getElementsByName("W")[0].value = W;
                                   document.getElementsByName("num_layers")[0].value = "3";
                                   document.getElementsByName("max_iterations")[0].value = "1000000";
