@@ -320,8 +320,8 @@ def application(environ, start_response):
                             <input type="submit" value="predict_remove" name="predict_remove" />
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
-                            <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
                             </form>
+                            <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
                             <script>
                               function fill_def_values_create()
                               {
