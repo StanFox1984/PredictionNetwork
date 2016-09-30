@@ -325,7 +325,6 @@ def application(environ, start_response):
                             <script>
                               function fill_def_values_create()
                               {
-                                  alert("!");
                                   document.getElementsByName("W")[0].value = "[ 0.1, 0.1 ]";
                               }
                             </script>
