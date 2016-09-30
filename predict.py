@@ -550,7 +550,7 @@ class NeuralLinearLayer:
       self.step_multiplier = 2
       self.step_multiplier_local_opt = 8
       self.err = 0.0000001
-      self.delay_tolerance = 50000
+      self.delay_tolerance = 200000
 
     def set_multipliers(self, step_multiplier, step_multiplier_local_opt):
       self.step_multiplier = step_multiplier
