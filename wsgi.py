@@ -326,8 +326,9 @@ def application(environ, start_response):
                             <script>
                               function fill_def_values_create()
                               {
+                                  alert(document.getElementsByName("dimensions")[0].value);
                                   var dimensions = parseInt(document.getElementsByName("dimensions")[0].value);
-                                  alert(dimensions.toString());
+
                                   var W = "[ ";
                                   var step = "[ ";
                                   for (int i=0;i<dimensions;i++)
