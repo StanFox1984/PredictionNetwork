@@ -331,7 +331,7 @@ def application(environ, start_response):
 
                                   var W = "[ ";
                                   var step = "[ ";
-                                  for (int i=0;i<dimensions;i++)
+                                  for (i=0;i<dimensions;i++)
                                   {
                                       if( i < (dimensions - 1) )
                                       {
