@@ -1858,49 +1858,62 @@ def run_all_tests(_rep = True):
     res = True
     res = weatherTest()
     all_pass = True
+    failed = [ ]
     if res != True:
       print "weatherTest FAILED!"
+      failed.append("weatherTest FAILED!")
       all_pass = False
     res = quadraticTest()
     if res != True:
       print "quadraticTest FAILED!"
+      failed.append("quadraticTest FAILED!")
       all_pass = False
     res = quadraticTest2()
     if res != True:
       print "quadraticTest2 FAILED!"
+      failed.append("quadraticTest2 FAILED!")
       all_pass = False
     res = periodicTest()
     if res != True:
       print "periodicTest FAILED!"
+      failed.append("periodicTest FAILED!")
       all_pass = False
     res = periodicRandTest()
     if res != True:
       print "periodicRandTest FAILED!"
+      failed.append("periodicRandTest FAILED!")
       all_pass = False
     res = logicTest()
     if res != True:
       print "logicTest FAILED!"
+      failed.append("logicTest FAILED!")
       all_pass = False
     res = classifierTest()
     if res != True:
       print "classifierTest FAILED!"
+      failed.append("classifierTest FAILED!")
       all_pass = False
     res = logicTest2()
     if res != True:
       print "logicTest2 FAILED!"
+      failed.append("logicTest2 FAILED!")
       all_pass = False
     res = classifierTest2()
     if res != True:
       print "classifierTest2 FAILED!"
+      failed.append("classifierTest2 FAILED!")
       all_pass = False
     res = weatherTest2()
     if res != True:
       print "weatherTest2 FAILED!"
+      failed.append("weatherTest2 FAILED!")
       all_pass = False
     if rep:
       s = mystdout.getvalue()
     if all_pass == True:
       s = "All test cases PASSED \n" + s
+    else:
+      s = "Test cases failed: " + str(failed) + "\n" + s
     if rep:
       sys.stdout = oldstdout
     if _rep == False:
