@@ -317,10 +317,18 @@ def application(environ, start_response):
                             <input type="submit" value="predict_create" name="predict_create" />
                             <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
                             <input type="submit" value="predict" name="predict" />
-                            <input type="submit" value="predict_remove" name="predict_remove" /><br>
+                            <input type="submit" value="predict_remove" name="predict_remove" />
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
-                            </form>'''
+                            <input type="button" value="fill_default_for_create" name="fill_for_create" onclick="fill_def_values_create()" />
+                            </form>
+                            <script>
+                              function fill_def_values_create()
+                              {
+                                  document.getElementById("W").value = "[ 0.1, 0.1 ]"
+                              }
+                            </script>
+                            '''
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #
