@@ -333,17 +333,18 @@ def application(environ, start_response):
                                   {
                                       if( i < (dimensions - 1) )
                                       {
-                                        W += "1.0, "
-                                        step += "0.1, "
+                                        W += "1.0, ";
+                                        step += "0.1, ";
                                       }
                                       else
                                       {
-                                        W += "1.0"
-                                        step += "0.1"
+                                        W += "1.0";
+                                        step += "0.1";
                                       }
                                   }
-                                  W += " ] "
-                                  step += " ] "
+                                  W += " ] ";
+                                  step += " ] ";
+                                  alert(W);
                                   document.getElementsByName("W")[0].value = W;
                                   document.getElementsByName("num_layers")[0].value = "3";
                                   document.getElementsByName("max_iterations")[0].value = "1000000";
