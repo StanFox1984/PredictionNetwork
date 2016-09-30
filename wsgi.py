@@ -321,11 +321,34 @@ def application(environ, start_response):
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
                             </form>
+                            Neural network dimensions: <input type="text" value="2" name="dimensions" /><br>
                             <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
                             <script>
                               function fill_def_values_create()
                               {
-                                  document.getElementsByName("W")[0].value = "[ 0.1, 0.1 ]";
+                                  var dimensions = parseInt(document.getElementsByName("dimensions")[0].value);
+                                  var W = "[ ";
+                                  var step = "[ ";
+                                  for (int i=0;i<dimensions;i++)
+                                  {
+                                      if( i < (dimensions - 1) )
+                                      {
+                                        W += "1.0, "
+                                        step += "0.1, "
+                                      }
+                                      else
+                                      {
+                                        W += "1.0"
+                                        step += "0.1"
+                                      }
+                                  }
+                                  W += " ] "
+                                  step += " ] "
+                                  document.getElementsByName("W")[0].value = W;
+                                  document.getElementsByName("num_layers")[0].value = "3";
+                                  document.getElementsByName("max_iterations")[0].value = "1000000";
+                                  document.getElementsByName("points_per_network")[0].value = "2";
+                                  document.getElementsByName("step")[0].value = step;
                               }
                             </script>
                             '''
