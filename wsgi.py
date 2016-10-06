@@ -312,8 +312,8 @@ def application(environ, start_response):
     if aliases != None:
         for key in aliases:
             select_s += "     var el = document.createElement(\"option\"); " +\
-                                "el.textContent = "+key+";"+\
-                                "el.value = "+key+";"+\
+                                "el.textContent = \'"+key+"\';"+\
+                                "el.value = \'"+key+"\';"+\
                                 "select.appendChild(el);"
     response_body += '''<br><form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
