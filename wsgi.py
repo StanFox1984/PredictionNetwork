@@ -251,8 +251,8 @@ def application(environ, start_response):
     predictorAllocator.load_from_file()
     aliases = None
     query_dict = parse_qs(environ['QUERY_STRING'])
-    if "id" in query_dict:
-        p = predictorAllocator.getPredictor(int(query_dict["id"][0]))
+    if "n" in query_dict:
+        p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
         if p != None:
             aliases = p.get_aliases()
     if environ['PATH_INFO'] == '/tests':
