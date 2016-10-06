@@ -333,6 +333,7 @@ def application(environ, start_response):
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" /><br>
                             <input type="submit" value="predict_create" name="predict_create" />
+                            <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias"><br>
                             <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
                             <input type="submit" value="predict" name="predict" />
                             <input type="submit" value="predict_remove" name="predict_remove" />
