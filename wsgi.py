@@ -387,7 +387,7 @@ def application(environ, start_response):
                                   var s = select.options[select.selectedIndex].value;
 //                                  alert(s)
                                   var X = document.getElementsByName("X")[0].value;
-                                  X = X + "," + s;
+                                  X = X + "," + "\'"+s+"\'";
                                   document.getElementsByName("X")[0].value = X;
                               }
                             '''+select_s+\
