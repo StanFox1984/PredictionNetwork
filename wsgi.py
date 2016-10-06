@@ -92,6 +92,16 @@ def handle_predict_create(environ, predictorAllocator):
     Wout = eval(d["W"][0])
     step = eval(d["step"][0])
     n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+    if "weather_sample_alias" in d:
+      p = predictorAllocator.getPredictor(n)
+      p.set_alias("SUN_SHINE", 0)
+      p.set_alias("RAIN", 1)
+      p.set_alias("WARM", 2)
+      p.set_alias("COLD", 3)
+      p.set_alias("WINTER", 40)
+      p.set_alias("SUMMER", 50)
+      p.set_alias("GOOD_WEATHER", 6)
+      p.set_alias("BAD_WEATHER", 7)
     s+=" Predictor created "+ str(n)+"\n"
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
