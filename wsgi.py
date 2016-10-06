@@ -340,6 +340,7 @@ def application(environ, start_response):
                             </form>
                             Neural network dimensions: <br><input type="text" value="2" name="dimensions" /><br>
                             <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
+                            <button name="add_to_x" onclick="fill_x_with_alias()">add_to_x</button><br>
                             <script>
                               function fill_def_values_create()
                               {
@@ -368,6 +369,15 @@ def application(environ, start_response):
                                   document.getElementsByName("max_iterations")[0].value = "1000000";
                                   document.getElementsByName("points_per_network")[0].value = "2";
                                   document.getElementsByName("step")[0].value = step;
+                              }
+                              function fill_x_with_alias()
+                              {
+                                  select = document.getElementById("aliases");
+                                  var s = select.options[select.selectedIndex].value;
+//                                  alert(s)
+                                  var X = document.getElementsByName("X")[0].value;
+                                  X = X + "," + s;
+                                  document.getElementsByName("X")[0].value = X;
                               }
                             '''+select_s+\
                             "</script>"
