@@ -252,7 +252,7 @@ def application(environ, start_response):
     aliases = None
     query_dict = parse_qs(environ['QUERY_STRING'])
     if "id" in query_dict:
-        p = predictorAllocator.getPredictor(query_dict["id"][0])
+        p = predictorAllocator.getPredictor(int(query_dict["id"][0]))
         if p != None:
             aliases = p.get_aliases()
     if environ['PATH_INFO'] == '/tests':
