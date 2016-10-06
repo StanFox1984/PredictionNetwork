@@ -249,6 +249,12 @@ def application(environ, start_response):
     response_body = ""
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
+    aliases = None
+    query_dict = parse_qs(environ['QUERY_STRING'])
+    if "id" in query_dict:
+        p = predictorAllocator.getPredictor(query_dict["id"])
+        if p != None:
+            aliases = p.get_aliases()
     if environ['PATH_INFO'] == '/tests':
         response_body = handle_run_tests(environ)
     if environ['PATH_INFO'] == '/predict_list':
@@ -301,9 +307,19 @@ def application(environ, start_response):
 #        response_body = '<html><body>' + s + '</body></html>'
     if len(response_body) == 0:
       response_body = '<html><body style="background-color:powderblue;">' + '</body></html>'
+    select_s = '''                  select = document.getElementById("aliases");
+               '''
+    if aliases != None:
+        for key in aliases:
+            select_s += "     var el = document.createElement(\"option\"); " +\
+                                "el.textContent = "+key+";"+\
+                                "el.value = "+key+";"+\
+                                "select.appendChild(el);"
     response_body += '''<br><form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
-                            <input type="text" value="X" name="X" /><br>
+                            <input type="text" value="X" name="X" /> 
+                            <select id="aliases">
+                            </select>
                             <input type="text" value="Y" name="Y" /><br>
                             <input type="text" value="depth" name="depth" /><br>
                             <input type="text" value="alias_key" name="alias_key" /><br>
@@ -326,9 +342,8 @@ def application(environ, start_response):
                             <script>
                               function fill_def_values_create()
                               {
-//                                  alert(document.getElementsByName("dimensions")[0].value);
+//                                alert(document.getElementsByName("dimensions")[0].value);
                                   var dimensions = parseInt(document.getElementsByName("dimensions")[0].value);
-
                                   var W = "[ ";
                                   var step = "[ ";
                                   for (i=0;i<dimensions;i++)
@@ -353,8 +368,8 @@ def application(environ, start_response):
                                   document.getElementsByName("points_per_network")[0].value = "2";
                                   document.getElementsByName("step")[0].value = step;
                               }
-                            </script>
-                            '''
+                            '''+select_s+\
+                            "</script>"
     status = '200 OK'
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #

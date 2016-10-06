@@ -92,6 +92,11 @@ class ProbTree:
             self.stamp = req_stamp
         else:
             self.stamp = time.time()
+        print self.me, "Pass by hits: ", self.pass_by_hits," Endpoint hits: ",self.endpoint_hits," Key:", key, " Data:", self.data
+        print "Probs:"
+        for el in self.outcomes:
+          print self.probs[el], self.outcomes[el].me
+
         for el in self.outcomes:
           self.outcomes[el].printOutcomes(el, self.stamp)
         print "*************************"
@@ -106,7 +111,7 @@ class ProbTree:
               max_id = p
         return self.outcomes[max_id]
 
-    def generateWithProb(self, in_prefix, max_len):
+    def generateWithProb(self, in_prefix, max_len, fuzzy = False):
         ret = [ ]
         tmp = self
         i = 0
@@ -117,7 +122,7 @@ class ProbTree:
             break
           tmp = tmp.outcomes[in_prefix[i]]
           i += 1
-        if len(in_prefix) != i:
+        if len(in_prefix) != i and fuzzy == False:
             return None
         while True:
           r = random.random()
@@ -171,18 +176,18 @@ class ProbNetwork:
               max_tree = self.probnodes[p]
         return max_tree
 
-    def generateWithProb(self, in_prefix, max_len):
+    def generateWithProb(self, in_prefix, max_len, fuzzy = False):
         vec = [ el.key for el in in_prefix ]
-        res = self._generateWithProb(vec, max_len)
+        res = self._generateWithProb(vec, max_len, fuzzy)
         out = [ self.probnodes[el[0]].data for el in res ]
         return out
 
-    def _generateWithProb(self, in_prefix, max_len):
+    def _generateWithProb(self, in_prefix, max_len, fuzzy = False):
         if len(in_prefix) > 0:
           if in_prefix[0] in self.probnodes:
-            return self.probnodes[in_prefix[0]].generateWithProb(in_prefix[1:], max_len)
+            return self.probnodes[in_prefix[0]].generateWithProb(in_prefix[1:], max_len, fuzzy)
         else:
-          return self.getMostProbable().generateWithProb(in_prefix[1:], max_len)
+          return self.getMostProbable().generateWithProb(in_prefix[1:], max_len, fuzzy)
 
 class Entity:
     def __init__(self, key, data):
@@ -228,7 +233,11 @@ def getArrCorrelations( X, Y):
       if prev_X != None:
         for j in xrange(0, len(X[i])):
           if prev_X[j] != X[i][j]:
-            Corr[j] += getVecDiffAbs(prev_Y, Y[i])/getVecDiffAbs(prev_X, X[i])
+            res = getVecDiffAbs(prev_Y, Y[i])/getVecDiffAbs(prev_X, X[i])
+            if res != 0:
+              Corr[j] += res
+            else:
+              Corr[j] += 1
       prev_X = X[i]
       prev_Y = Y[i]
     return Corr
@@ -392,6 +401,8 @@ class FactorAnalyzer:
         self.total_factor_hits = 0
         self.corr = [ ]
         self.factor_outcome_list = [ ]
+    def Print(self):
+        self.prob_network.printOutcomes()
     def analyze_factor(self, factor, generate_func = None, outcome = None):
         state = None
         if factor not in self.factor_map:
@@ -416,8 +427,10 @@ class FactorAnalyzer:
         prefix_states = [ ]
         m0 = 0
         i = 0
+        fuzzy = False
         for factor in prefix_factors:
             if factor not in self.factor_map:
+                fuzzy = True
                 for el in self.factor_map:
                     if len(self.factor_outcome_list) > 0:
                       d = getVecDiffAbsWithCorr(eval(el), eval(factor), self.corr)
@@ -437,6 +450,7 @@ class FactorAnalyzer:
                         m0 = m
             else:
                 closest_factor = factor
+            print "closest was", closest_factor
             prefix_factors[i] = closest_factor
             i += 1
             if generate_func == None:
@@ -445,7 +459,7 @@ class FactorAnalyzer:
               prefix_states.append(generate_func(closest_factor))
         if depth <= len(prefix_states):
           return prefix_states
-        res =  self.prob_network.generateWithProb(prefix_states, depth-len(prefix_states))
+        res =  self.prob_network.generateWithProb(prefix_states, depth-len(prefix_states), fuzzy)
         prefix_states.extend(res)
         return prefix_states
 
@@ -1205,6 +1219,8 @@ class Predictor:
     def set_alias( self, key, value):
       self.alias_dict[key] = value
       self.back_alias_dict[value] = key
+    def get_aliases(self):
+      return self.alias_dict
     def set_step_multipliers(self, step_multiplier, step_multiplier_local_opt):
       self.neural.set_multipliers(step_multiplier, step_multiplier_local_opt)
     def study(self, _X, _Y):
@@ -1243,6 +1259,9 @@ class Predictor:
         if a == True:
           return True
       return False
+
+    def PrintFactors(self):
+      self.analyzer.Print()
 
     def predict_p(self, prefix, Y, P, depth, is_prefix_time = None):
       _classes = [ ]
@@ -1819,6 +1838,49 @@ def weatherTest2():
     print "weatherTest2 PASSED"
     return True
 
+def psychoTest():
+    Wout = [ 1.0 ]
+    step = [ 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    p.set_alias("HEAD_ACHE", 0)
+    p.set_alias("FLU", 200)
+    p.set_alias("HEART_RACE", 2)
+    p.set_alias("SWEAT", 3)
+    p.set_alias("ANXIETY", 40)
+    p.set_alias("CALM", 500)
+    p.set_alias("COLD", 300)
+    p.set_alias("SPORT", 4)
+    p.set_alias("GOOD", 600)
+    p.set_alias("FEAR", 44)
+    p.set_alias("BAD", 700)
+    X = [ ]
+    Y = [ ]
+    X.extend([ ["FLU"], ["HEART_RACE"], ["FEAR"], ["BAD"] ])
+    Y.extend([ [ -20.0] for i in xrange(0, 4)  ])
+    X.extend([ ["BAD"], ["FLU"], ["FEAR"], ["HEART_RACE"] ])
+    Y.extend([ [ -20.0] for i in xrange(0, 4)  ])
+    X.extend([ ["HEART_RACE"], ["SWEAT"], ["FEAR"], ["ANXIETY"] ])
+    Y.extend([ [ -20.0] for i in xrange(0, 4) ])
+    X.extend([ ["CALM"], ["GOOD"], ["SWEAT"], ["SPORT"] ])
+    Y.extend([ [ -20.0 ] for i in xrange(0, 4) ])
+    p.study(X,Y)
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([ ["COLD"], ["BAD"] ], Yout, P, 4, _classes)
+    p.PrintFactors()
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    print "psychoTest PASSED"
+    return True
+
 
 def predict_thread(p, f, f2):
     i = 0
@@ -1961,5 +2023,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
       if sys.argv[1] == "guess_thread":
         guess_thread()
-    run_all_tests(False)
+    psychoTest()
+#    run_all_tests(False)
     exit(0)
