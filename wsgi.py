@@ -252,8 +252,9 @@ def application(environ, start_response):
     aliases = None
     query_dict = parse_qs(environ['QUERY_STRING'])
     if "n" in query_dict:
-        p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
-        if p != None:
+        if query_dict["n"][0] != "predictor_id":
+          p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
+          if p != None:
             aliases = p.get_aliases()
     if environ['PATH_INFO'] == '/tests':
         response_body = handle_run_tests(environ)
