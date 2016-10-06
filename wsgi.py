@@ -318,9 +318,10 @@ def application(environ, start_response):
                                 "select.appendChild(el);"
     response_body += '''<br><form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
-                            <input type="text" value="X" name="X" /> 
+                            <input type="text" value="X" name="X" />
                             <select id="aliases">
                             </select>
+                            <button name="add_to_x" onclick="fill_x_with_alias()">Add_to_x</button><br>
                             <input type="text" value="Y" name="Y" /><br>
                             <input type="text" value="depth" name="depth" /><br>
                             <input type="text" value="alias_key" name="alias_key" /><br>
@@ -339,8 +340,7 @@ def application(environ, start_response):
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
                             </form>
                             Neural network dimensions: <br><input type="text" value="2" name="dimensions" /><br>
-                            <button name="fill_for_create" onclick="fill_def_values_create()">fill_for_create</button><br>
-                            <button name="add_to_x" onclick="fill_x_with_alias()">add_to_x</button><br>
+                            <button name="fill_for_create" onclick="fill_def_values_create()">Fill_for_create</button><br>
                             <script>
                               function fill_def_values_create()
                               {
