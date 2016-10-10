@@ -375,8 +375,9 @@ def application(environ, start_response):
                             <input type="text" value="X" name="X" />
                             <select id="aliases">
                             </select>
-                            <button type="button" name="add_to_x" onclick="fill_x_with_alias()">Add_to_x</button><br>
-                            <input type="text" value="Y" name="Y" /><br>
+                            <button type="button" name="add_to_x" onclick="fill_x_with_alias()">Add to X</button><br>
+                            <input type="text" value="Y" name="Y" />
+                            <button type="button" name="add_to_y" onclick="fill_y_with_alias()">Add to Y</button><br>
                             <input type="text" value="depth" name="depth" /><br>
                             <input type="text" value="alias_key" name="alias_key" /><br>
                             <input type="text" value="alias_value" name="alias_value" /><br>
@@ -437,6 +438,15 @@ def application(environ, start_response):
                                   var X = document.getElementsByName("X")[0].value;
                                   X = X + "," + "\'"+s+"\'";
                                   document.getElementsByName("X")[0].value = X;
+                              }
+                              function fill_y_with_alias()
+                              {
+                                  select = document.getElementById("aliases");
+                                  var s = select.options[select.selectedIndex].value;
+//                                  alert(s)
+                                  var Y = document.getElementsByName("Y")[0].value;
+                                  Y = Y + "," + "\'"+s+"\'";
+                                  document.getElementsByName("Y")[0].value = Y;
                               }
                             '''+select_s+\
                             "</script>"
