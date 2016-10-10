@@ -289,7 +289,7 @@ def application(environ, start_response):
     response_body = ""
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
-    msg = urllib.urlencode(message)
+#    msg = urllib.urlencode(message)
         #print(self.url+"?"+msg)
     request = urllib2.Request("www.bloomberg.com")
     response = urllib2.urlopen(request)
