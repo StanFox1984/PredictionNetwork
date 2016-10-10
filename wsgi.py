@@ -431,8 +431,8 @@ def application(environ, start_response):
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" /><br>
                             <input type="submit" value="predict_study_from_link" name="predict_study_from_link" />
-                            <input type="text" value="" name="predict_study_link_x" />
-                            <input type="text" value="" name="predict_study_link_y" /><br>
+                            X:<input type="text" value="" name="predict_study_link_x" />
+                            Y:<input type="text" value="" name="predict_study_link_y" /><br>
                             <input type="submit" value="predict_create" name="predict_create" />
                             Include weather sample aliases
                             <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias">
