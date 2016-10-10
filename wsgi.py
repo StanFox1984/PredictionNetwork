@@ -44,7 +44,11 @@ class PredictorAllocator:
     def getArray(self):
       return self.predictor_array
     def getPredictor(self, n):
-      return self.predictor_array[n]
+      try:
+        return self.predictor_array[n]
+      except KeyError:
+        print "No such predictor with id ", n
+        return None
     def deallocate(self, n):
       del self.predictor_array[n]
 
