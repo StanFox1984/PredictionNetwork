@@ -16,6 +16,8 @@ from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
 import json
 import pickle
+import urllib
+import urllib2
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -287,6 +289,13 @@ def application(environ, start_response):
     response_body = ""
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
+    msg = urllib.urlencode(message)
+        #print(self.url+"?"+msg)
+    request = urllib2.Request("www.bloomberg.com")
+    response = urllib2.urlopen(request)
+    page = response.read()
+    print page
+
     aliases = None
     n = None
     if environ['PATH_INFO'] == '/tests':
