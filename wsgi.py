@@ -291,7 +291,7 @@ def application(environ, start_response):
     predictorAllocator.load_from_file()
 #    msg = urllib.urlencode(message)
         #print(self.url+"?"+msg)
-    request = urllib2.Request("www.bloomberg.com")
+    request = urllib2.Request("http://www.bloomberg.com/europe")
     response = urllib2.urlopen(request)
     page = response.read()
     print page
