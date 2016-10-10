@@ -389,7 +389,7 @@ def application(environ, start_response):
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
     elif environ['PATH_INFO'] == '/X_Input':
-        f = open("X_Input", "r")
+        f = open(os.environ['OPENSHIFT_DATA_DIR']+"X_Input", "rb")
         fl = f.read()
         response_body = fl
         status = '200 OK'
