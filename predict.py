@@ -542,7 +542,7 @@ def gradient(Y, X, W, grad):
     for j in xrange(0, len(W)):
       grad[j] = 0
       for m in xrange(0, len(Y)):
-        g = multiply_scalars(2.0, array_sum_multiply_i(X, Y, m)) + array_sum(multiply_scalar_array(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
+        g = multiply_scalars(2.0*Y[m][j], array_sum(X[m])) + array_sum(multiply_scalar_array(-2.0*W[j], [ X[m][i]*X[m][i] for i in xrange(0, len(X[m])) ] ))
 #        print "gradient calc res: ", g
         grad[j] += g
 
@@ -597,7 +597,7 @@ class NeuralLinearLayer:
               self.step[l] *= self.step_multiplier
             else:
               self.step[l] *= self.step_multiplier_local_opt
-#            print "step_increased ", self.step, "error: ", n, "W:", self.W, grad, last_grad
+            print "step_increased ", self.step, "error: ", n, "W:", self.W, "grad:", grad, last_grad
           overall_iterations += iterations
           iterations_left -= iterations
           for h in xrange(0, len(X)):
@@ -644,6 +644,7 @@ class NeuralLinearLayer:
           break
         iterations += 1
       overall_iterations += iterations
+      print "Ended up with W: ", self.W
 
     def calc_y(self, X, Y):
         for j in xrange(0, len(Y)):
@@ -1881,6 +1882,64 @@ def psychoTest():
     print "psychoTest PASSED"
     return True
 
+def stockTest():
+    Wout = [ 1.0, 1.0, 1.0, 1.0 ]
+    step = [ 0.1, 0.1, 0.1, 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    p.set_alias("NASDAQ_DOWN", 0)
+    p.set_alias("NASDAQ_UP", 1)
+    p.set_alias("DOW_DOWN", 2)
+    p.set_alias("DOW_UP", 3)
+    p.set_alias("S&P_DOWN", 4)
+    p.set_alias("S&P_UP", 5)
+    p.set_alias("NYSE_DOWN", 6)
+    p.set_alias("NYSE_UP", 7)
+    X = [ ]
+    Y = [ ]
+    X.extend([ ["NASDAQ_DOWN", "DOW_UP", "S&P_UP", "NYSE_DOWN"] ])
+    Y.extend([ [ -5, 10, 10, -5 ] ])
+    X.extend([ ["NASDAQ_UP", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ])
+    Y.extend([ [ 20, -10, -10, -5 ] ])
+    X.extend([ ["NASDAQ_DOWN", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ])
+    Y.extend([ [ -5, -10, -10, -5 ] ])
+    X.extend([ ["NASDAQ_UP", "DOW_DOWN", "S&P_DOWN", "NYSE_UP"] ])
+    Y.extend([ [ 15, -8, -8, 10 ] ])
+    X.extend([ ["NASDAQ_DOWN", "DOW_UP", "S&P_UP", "NYSE_DOWN"] ])
+    Y.extend([ [ -5, 10, 10, -12 ] ])
+    X.extend([ ["NASDAQ_DOWN", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ])
+    Y.extend([ [ -5, -10, -10, -5 ] ])
+    X.extend([ ["NASDAQ_UP", "DOW_DOWN", "S&P_DOWN", "NYSE_UP"] ])
+    Y.extend([ [ 15, -8, -8, 10 ] ])
+    X.extend([ ["NASDAQ_UP", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ])
+    Y.extend([ [ 20, -10, -10, -5 ] ])
+    p.study(X,Y)
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([ ["NASDAQ_DOWN", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ], Yout, P, 5, _classes)
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    if len(P) < 5:
+      print "Wrong P, should be at least 5", len(P)
+      return False
+    if P[1][0] != "NASDAQ_UP" or P[1][1] != "DOW_DOWN" or P[1][2] != "S&P_DOWN" or P[1][3] != "NYSE_UP":
+      print "Wrong prediction P: ", P
+      return False
+    if len(p.classificator.clusters) != 5:
+      print "Wrong classes number", len(p.classificator.clusters)
+      for c in p.classificator.clusters:
+        print str(c)
+      return False
+    print "stockTest PASSED"
+    return True
+
 
 def predict_thread(p, f, f2):
     i = 0
@@ -1970,6 +2029,11 @@ def run_all_tests(_rep = True):
       print "weatherTest2 FAILED!"
       failed.append("weatherTest2 FAILED!")
       all_pass = False
+    res = stockTest()
+    if res != True:
+      print "stockTest FAILED!"
+      failed.append("stockTest FAILED!")
+      all_pass = False
     if rep:
       s = mystdout.getvalue()
     if all_pass == True:
@@ -2023,6 +2087,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
       if sys.argv[1] == "guess_thread":
         guess_thread()
-    psychoTest()
+    stockTest()
 #    run_all_tests(False)
     exit(0)
