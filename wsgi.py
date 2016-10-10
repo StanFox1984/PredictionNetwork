@@ -105,6 +105,7 @@ def handle_predict_create(environ, predictorAllocator):
       p.set_alias("BAD_WEATHER", 7)
 
     if "stock_sample_alias" in d:
+      p = predictorAllocator.getPredictor(n)
       p.set_alias("NASDAQ_DOWN", 0)
       p.set_alias("NASDAQ_UP", 1)
       p.set_alias("DOW_DOWN", 2)
