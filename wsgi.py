@@ -92,6 +92,7 @@ def handle_predict_create(environ, predictorAllocator):
     Wout = eval(d["W"][0])
     step = eval(d["step"][0])
     n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
+
     if "weather_sample_alias" in d:
       p = predictorAllocator.getPredictor(n)
       p.set_alias("SUN_SHINE", 0)
@@ -102,6 +103,17 @@ def handle_predict_create(environ, predictorAllocator):
       p.set_alias("SUMMER", 50)
       p.set_alias("GOOD_WEATHER", 6)
       p.set_alias("BAD_WEATHER", 7)
+
+    if "stock_sample_alias" in d:
+      p.set_alias("NASDAQ_DOWN", 0)
+      p.set_alias("NASDAQ_UP", 1)
+      p.set_alias("DOW_DOWN", 2)
+      p.set_alias("DOW_UP", 3)
+      p.set_alias("S&P_DOWN", 4)
+      p.set_alias("S&P_UP", 5)
+      p.set_alias("NYSE_DOWN", 6)
+      p.set_alias("NYSE_UP", 7)
+
     s+=" Predictor created "+ str(n)+"\n"
     ctype = 'text/html'
     s = s.replace("\n"," <br> ")
@@ -345,6 +357,8 @@ def application(environ, start_response):
                             <input type="submit" value="predict_create" name="predict_create" />
                             Include weather sample aliases
                             <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias"><br>
+                            Include stock sample aliases
+                            <input type="checkbox" name="stock_sample_alias" value="stock_sample_alias"><br>
                             <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
                             <input type="submit" value="predict" name="predict" />
                             <input type="submit" value="predict_remove" name="predict_remove" />

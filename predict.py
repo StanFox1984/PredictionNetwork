@@ -597,7 +597,7 @@ class NeuralLinearLayer:
               self.step[l] *= self.step_multiplier
             else:
               self.step[l] *= self.step_multiplier_local_opt
-            print "step_increased ", self.step, "error: ", n, "W:", self.W, "grad:", grad, last_grad
+#            print "step_increased ", self.step, "error: ", n, "W:", self.W, "grad:", grad, last_grad
           overall_iterations += iterations
           iterations_left -= iterations
           for h in xrange(0, len(X)):
@@ -644,7 +644,7 @@ class NeuralLinearLayer:
           break
         iterations += 1
       overall_iterations += iterations
-      print "Ended up with W: ", self.W
+#      print "Ended up with W: ", self.W
 
     def calc_y(self, X, Y):
         for j in xrange(0, len(Y)):
