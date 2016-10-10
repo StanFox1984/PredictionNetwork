@@ -115,12 +115,7 @@ def handle_predict_create(environ, predictorAllocator):
       p.set_alias("NYSE_DOWN", 6)
       p.set_alias("NYSE_UP", 7)
 
-    s+=" Predictor created "+ str(n)+"\n"
-    ctype = 'text/html'
-    s = s.replace("\n"," <br> ")
-    s = s.replace("\r"," <br> ")
-    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
-  return response_body
+  return n
 
 def handle_predict_study(environ, predictorAllocator):
   s = ""
@@ -273,12 +268,7 @@ def application(environ, start_response):
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
     aliases = None
-    query_dict = parse_qs(environ['QUERY_STRING'])
-    if "n" in query_dict:
-        if query_dict["n"][0] != "predictor_id":
-          p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
-          if p != None:
-            aliases = p.get_aliases()
+    n = None
     if environ['PATH_INFO'] == '/tests':
         response_body = handle_run_tests(environ)
     if environ['PATH_INFO'] == '/predict_list':
@@ -303,7 +293,13 @@ def application(environ, start_response):
             response_body = handle_predict_list(environ, predictorAllocator)
             c = 1
         if "predict_create" in d:
-            response_body = handle_predict_create(environ, predictorAllocator)
+            n = handle_predict_create(environ, predictorAllocator)
+            _s = ""
+            _s+=" Predictor created "+ str(n)+"\n"
+            ctype = 'text/html'
+            _s = _s.replace("\n"," <br> ")
+            _s = _s.replace("\r"," <br> ")
+            response_body = '<html><body style="background-color:powderblue;">' + _s + '</body></html>'
             c = 1
         if "predict_study" in d:
             response_body = handle_predict_study(environ, predictorAllocator)
@@ -326,6 +322,18 @@ def application(environ, start_response):
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
+
+    query_dict = parse_qs(environ['QUERY_STRING'])
+    if "n" in query_dict:
+        if query_dict["n"][0] != "predictor_id":
+          p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
+          if p != None:
+            aliases = p.get_aliases()
+
+    if n != None:
+      p = predictorAllocator.getPredictor(n)
+      if p != None:
+        aliases = p.get_aliases()
 
     ctype = 'text/html'
 #        response_body = '<html><body>' + s + '</body></html>'
