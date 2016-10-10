@@ -354,7 +354,7 @@ def application(environ, start_response):
                             <input type="text" value="num_layers" name="num_layers" /><br>
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" /><br>
-                            <input type="submit" value="predict_create" name="predict_create" />
+                            <input type="submit" value="predict_create" name="predict_create" /><br>
                             Include weather sample aliases
                             <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias"><br>
                             Include stock sample aliases
