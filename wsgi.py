@@ -388,6 +388,14 @@ def application(environ, start_response):
         response_body = ['%s: %s' % (key, value)
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
+    elif environ['PATH_INFO'] == 'X_Input':
+        f = open("X_Input", "r")
+        fl = f.read()
+        response_body = fl
+        status = '200 OK'
+        response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
+        start_response(status, response_headers)
+        return [response_body]
 
     query_dict = parse_qs(environ['QUERY_STRING'])
     if "n" in query_dict:
