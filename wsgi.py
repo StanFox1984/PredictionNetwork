@@ -436,7 +436,16 @@ def application(environ, start_response):
                                   var s = select.options[select.selectedIndex].value;
 //                                  alert(s)
                                   var X = document.getElementsByName("X")[0].value;
-                                  X = X + "," + "\'"+s+"\'";
+                                  if ((X.length == 0) || (X == "X"))
+                                  {
+                                    X = "[["
+                                    X = X + "\'"+s+"\']]";
+                                  }
+                                  else
+                                  {
+                                    X = X.replace("]]","");
+                                    X = X + "," + "\'"+s+"\']]";
+                                  }
                                   document.getElementsByName("X")[0].value = X;
                               }
                               function fill_y_with_alias()
@@ -445,7 +454,16 @@ def application(environ, start_response):
                                   var s = select.options[select.selectedIndex].value;
 //                                  alert(s)
                                   var Y = document.getElementsByName("Y")[0].value;
-                                  Y = Y + "," + "\'"+s+"\'";
+                                  if ((Y.length == 0) || (Y == "Y"))
+                                  {
+                                    Y = "[["
+                                    Y = Y + "\'"+s+"\']]";
+                                  }
+                                  else
+                                  {
+                                    Y = Y.replace("]]","");
+                                    Y = Y + "," + "\'"+s+"\']]";
+                                  }
                                   document.getElementsByName("Y")[0].value = Y;
                               }
                             '''+select_s+\
