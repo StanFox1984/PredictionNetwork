@@ -51,6 +51,8 @@ class PredictorAllocator:
         return None
     def deallocate(self, n):
       del self.predictor_array[n]
+    def deallocate_all(self):
+      self.predictor_array = {}
 
 s = ""
 
@@ -252,6 +254,20 @@ def handle_predict_remove(environ, predictorAllocator):
   response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
   return response_body
 
+def handle_predict_remove_all(environ, predictorAllocator):
+  s = ""
+  s1 = environ['QUERY_STRING']
+  s1 = s1.replace("%20"," ")
+  d = parse_qs(s1)
+  predictorAllocator.deallocate_all()
+  s+="All predictors removed\n"
+  ctype = 'text/html'
+  s = s.replace("\n"," <br> ")
+  s = s.replace("\r"," <br> ")
+  response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
+  return response_body
+
+
 def handle_run_tests(environ):
   s = ""
   s += predict.run_all_tests()
@@ -314,6 +330,9 @@ def application(environ, start_response):
         if "predict_remove" in d:
             response_body = handle_predict_remove(environ, predictorAllocator)
             c = 1
+        if "predict_remove_all" in d:
+            response_body = handle_predict_remove_all(environ, predictorAllocator)
+            c = 1
         if "predict_set_alias" in d:
             response_body = handle_predict_set_alias(environ, predictorAllocator)
             c = 1
@@ -373,8 +392,9 @@ def application(environ, start_response):
                             Include stock sample aliases
                             <input type="checkbox" name="stock_sample_alias" value="stock_sample_alias"><br>
                             <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
-                            <input type="submit" value="predict" name="predict" />
-                            <input type="submit" value="predict_remove" name="predict_remove" />
+                            <input type="submit" value="predict" name="predict" /><br>
+                            <input type="submit" value="predict_remove" name="predict_remove" /><br>
+                            <input type="submit" value="predict_remove_all" name="predict_remove_all" /><br>
                             <input type="submit" value="predict_list" name="predict_list" /><br>
                             <input type="submit" value="predict_run_tests" name="predict_run_tests" />
                             </form>
