@@ -169,6 +169,41 @@ def handle_predict_study(environ, predictorAllocator):
     response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
     return response_body
 
+def handle_predict_study_from_link(environ, predictorAllocator):
+  s = ""
+  if predictorAllocator != None:
+#   s += str(os.getpid())
+    s1 = environ['QUERY_STRING']
+    s1 = s1.replace("%20"," ")
+    d = parse_qs(s1)
+#   s += str(d)
+#   s += d["W"][0]
+    X = [ ]
+    Y = [ ]
+    if "predict_study_link_x" in d and "predict_study_link_y" in d:
+      request = urllib2.Request(d["predict_study_link_x"][0])
+      response = urllib2.urlopen(request)
+      page = response.read()
+      print "X from page:", page
+      X = eval(page)
+      request = urllib2.Request(d["predict_study_link_y"][0])
+      response = urllib2.urlopen(request)
+      page = response.read()
+      Y = eval(page)
+      print "Y from page:", page
+    n = eval(d["n"][0])
+    p = predictorAllocator.getPredictor(n)
+    if p != None:
+      p.study(X,Y)
+      s+=" Predictor study "+ str(n)+"\n"
+    else:
+      s+=" Not found" + str(n)+"\n"
+    ctype = 'text/html'
+    s = s.replace("\n"," <br> ")
+    s = s.replace("\r"," <br> ")
+    response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
+    return response_body
+
 def handle_predict_set_alias(environ, predictorAllocator):
   s = ""
   if predictorAllocator != None:
@@ -289,12 +324,6 @@ def application(environ, start_response):
     response_body = ""
 #    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
-#    msg = urllib.urlencode(message)
-        #print(self.url+"?"+msg)
-    request = urllib2.Request("http://www.bloomberg.com/europe")
-    response = urllib2.urlopen(request)
-    page = response.read()
-    print page
 
     aliases = None
     n = None
@@ -306,6 +335,8 @@ def application(environ, start_response):
         response_body = handle_predict_create(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_study':
         response_body = handle_predict_study(environ, predictorAllocator)
+    if environ['PATH_INFO'] == '/predict_study_from_link':
+        response_body = handle_predict_study_from_link(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict':
         response_body = handle_predict(environ, predictorAllocator)
     if environ['PATH_INFO'] == '/predict_remove':
@@ -332,6 +363,9 @@ def application(environ, start_response):
             c = 1
         if "predict_study" in d:
             response_body = handle_predict_study(environ, predictorAllocator)
+            c = 1
+        if "predict_study_from_link" in d:
+            response_body = handle_predict_study_from_link(environ, predictorAllocator)
             c = 1
         if "predict" in d:
             response_body = handle_predict(environ, predictorAllocator)
@@ -396,6 +430,9 @@ def application(environ, start_response):
                             <input type="text" value="num_layers" name="num_layers" /><br>
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
                             <input type="submit" value="predict_study" name="predict_study" /><br>
+                            <input type="submit" value="predict_study_from_link" name="predict_study_from_link" />
+                            <input type="text" value="" name="predict_study_link_x" />
+                            <input type="text" value="" name="predict_study_link_y" /><br>
                             <input type="submit" value="predict_create" name="predict_create" />
                             Include weather sample aliases
                             <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias">
