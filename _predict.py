@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import time
 import sys
@@ -588,7 +589,6 @@ class NeuralLinearLayer:
       last_grad = None
       first = True
       old_t = datetime.now()
-      W_act = [ True for i in xrange(0, len(self.W)) ]
       while True and iterations < iterations_left:
         if iterations >= (iterations_left/4) or ((datetime.now() - old_t).microseconds>self.delay_tolerance):
           old_t = datetime.now()
@@ -612,10 +612,9 @@ class NeuralLinearLayer:
 #            for l in xrange(0, len(self.step)):
 #              self.step[l] /= self.step_multiplier
 #            print "Gradient change detected, decreasing step to", self.step, n, last_grad, grad
-          if W_act[j] == True:
-            Wout[j] = self.W[j]
-            self.W[j] += self.step[j]*grad[j]
-        n = self.calc_err_func3(X, Y)
+          Wout[j] = self.W[j]
+          self.W[j] += self.step[j]*grad[j]
+        n = self.calc_err_func2(X, Y)
         grad_zero = True
         for h in xrange(0, len(grad)):
           if int(grad[h]) != 0:
@@ -628,36 +627,24 @@ class NeuralLinearLayer:
             for j in xrange(0, len(self.W)):
               Wout[j] = self.W[j]
               if last_grad != None:
-                if W_act[j] == True:
-                  self.W[j] += self.step[j]*(last_grad[j])
+                self.W[j] += self.step[j]*(last_grad[j])
               else:
-                if W_act[j] == True:
-                  self.W[j] += self.step[j]
-              n = self.calc_err_func3(X, Y)
+                self.W[j] += self.step[j]
+              n = self.calc_err_func2(X, Y)
 #            print "step_increased opt", self.step, n, grad, self.W, last_grad
         else:
           last_grad = copy.deepcopy(grad)
-        for g in xrange(0, len(n)):
-          if self.last_err_func != None:
-            if self.last_err_func[g] < n[g] or n[g] <= self.err:
-              W_act[g] = False
-          else:
-            self.last_err_func = n
-        some_active = False
-        for g in W_act:
-          if g == True:
-            some_active = True
-        if some_active == False:
-          print "err func is now not decreasing"
+        if (self.last_err_func == None or n <= self.last_err_func) and n >= self.err:
+          self.last_err_func = n
+        else:
           for j in xrange(0,len(self.W)):
             self.W[j] = Wout[j]
           n = self.calc_err_func2(X, Y)
           Ytest = copy.deepcopy(Y)
           break
         iterations += 1
-        print "last_grad:",last_grad, self.last_err_func, n, self.W
       overall_iterations += iterations
-      print "Ended up with W: ", self.W
+#      print "Ended up with W: ", self.W
 
     def calc_y(self, X, Y):
         for j in xrange(0, len(Y)):
@@ -686,24 +673,7 @@ class NeuralLinearLayer:
           for i in xrange(0, len(X[m])):
             s += X[m][i]*self.W[j]
 #          s+=self.WC[j]
-          print "s: ", s
-          Err += pow(( Y[m][j] - s ), 2)
-      return Err
 
-    def calc_err_func3(self, X, Y):
-      Err = [ 0 for i in xrange(0, len(self.W)) ]
-      for j in xrange(0, len(self.W)):
-        Err[j] += self.calc_err_func_j(X, Y, j)
-      return Err
-
-    def calc_err_func_j(self, X, Y, j):
-      Err = 0
-      for m in xrange(0, len(Y)):
-          s = 0.0
-          for i in xrange(0, len(X[m])):
-            s += X[m][i]*self.W[j]
-#          s+=self.WC[j]
-          print "s: ", s
           Err += pow(( Y[m][j] - s ), 2)
       return Err
 
@@ -928,6 +898,7 @@ class NeuralLinearComposedNetwork:
               self.networks.append( ( mn, mx, NeuralLinearNetwork( self.W0 , self.num_layers, self.step, self.max_iterations, self.sp) ) )
             else:
               self.networks.append( ( mn, mx, createNetworkForNode(('', 50000), 'abc', self.W0, self.num_layers, self.step, self.max_iterations) ) )
+            print "Added network ", mn, mx, len(self.networks)-1
 
             self.networks[len(self.networks)-1][2].set_multipliers(self.step_multiplier, self.step_multiplier_local_opt)
             if self.parallelize == False:
@@ -963,8 +934,9 @@ class NeuralLinearComposedNetwork:
       for j in xrange(0, len(self.W0)):
         _X = [ ]
         if self.cyclic[j] == True:
-          _X.append(self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1))
-          XX[j] = self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1)
+#          XX[j] = self.mn[j][0] + X[j] % ( self.mx[j][0] - self.mn[j][0] + 1)
+          XX[j] =  X[j] % ( self.mx[j][0]+1)
+          _X.append(XX[j])
         else:
           _X.append(X[j])
         for n in xrange(0, len(self.networks)):
@@ -973,16 +945,39 @@ class NeuralLinearComposedNetwork:
             i = n
             distance[n][0] = abs(self.networks[n][0][j] - _X[0] )
             distance[n][1] = abs(self.networks[n][1][j] - _X[0] )
-            num_match[n] += 1
+#            num_match[n] += 1
           else:
             distance[n][0] = abs(self.networks[n][0][j] - _X[0] )
             distance[n][1] = abs(self.networks[n][1][j] - _X[0] )
+            i = n
+          num_match[n] += 1 + (-0.5)*(distance[n][0]+distance[n][1])
       if i != None:
-        YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
+        print "chosen network num ", num_match.index(max(num_match)), "for X ", XX, " of ", [ (self.networks[p], num_match[p]) for p in xrange(0,len(num_match)) ]
+        ns = [ (num_match[p],self.networks[p]) for p in xrange(0,len(num_match)) ]
+        ns=sorted(ns,reverse=True)
+#        print ns
+#c/a1 + c/a2 + c/a3 = 1
+
+#1/a1 +1/a2 + 1/a3 = 1/c
+#c = 1/(1/a1+1/a2+1/a3)
+
+        ns2 = ns[:len(ns)/8]
+        print ns2
+        nm = sum([ 1/abs(t[0]) for t in ns2 ])
+        nm = 1/nm
+        YY = copy.deepcopy(Y)
+        for u in xrange(0, len(Y)):
+          YY[u] = 0
+          for net in ns2:
+            net[1][2].calc_y2(XX, Y, up_to)
+            print abs(nm/net[0]), Y[u], net, XX
+            YY[u]+=abs(nm/net[0])*Y[u]
+#        YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
           Y[y] = round(copy.deepcopy(YY[y]),2)
       else:
         dist = [ d[0] + d[1] for d in distance ]
+        print "chosen network num ", dist.index(min(dist)),"for X ", XX
         YY = self.networks[dist.index(min(dist))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
           Y[y] = round(copy.deepcopy(YY[y]),2)
@@ -1971,38 +1966,6 @@ def stockTest():
     return True
 
 
-def simpleTest():
-    Wout = [ 20.0, 2.0 ]
-    step = [ 0.5, 0.5 ]
-    p = Predictor(4, Wout, 1, step, 100)
-    X = [ ]
-    Y = [ ]
-    X.append([1,0 ])
-    Y.append([20,0 ])
-    X.append([0,1 ])
-    Y.append([0,2 ])
-    X.append([1,0 ])
-    Y.append([20,0 ])
-    X.append([0,1 ])
-    Y.append([0,2 ])
-    p.study(X,Y)
-    Yout = [ ]
-    P = [ ]
-    _classes = [ ]
-    p.predict_p_classes([], Yout, P, 2, _classes)
-    print "Approximated Y: ", Yout
-    print "Approximated X: ", P
-    print "Y:", Y
-    print "X:", X
-    for c in xrange(0, len(_classes)):
-      if _classes[c] != None:
-        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
-      else:
-        print "P: ", P[c], Yout[c], "Class: None"
-    print "simpleTest PASSED"
-    return True
-
-
 def predict_thread(p, f, f2):
     i = 0
     while(True):
@@ -2027,6 +1990,62 @@ def predict_thread(p, f, f2):
       f2.write(str(P)+"\n")
       f2.write(str(Y)+"\n")
       f2.flush()
+
+def simpleTest():
+    Wout = [ 1.0, 1.0 ]
+    step = [ 0.1, 0.1 ]
+    p = Predictor(1, Wout, 3, step, 1000000)
+    X = [ ]
+    Y = [ ]
+    X.append([0,1 ])
+    Y.append([0,1 ])
+    X.append([1,1 ])
+    Y.append([0,1 ])
+    X.append([1,2 ])
+    Y.append([1,0 ])
+    X.append([2,2 ])
+    Y.append([0,1 ])
+    X.append([4,2 ])
+    Y.append([1,0 ])
+    X.append([3,3 ])
+    Y.append([0,1 ])
+    X.append([5,3 ])
+    Y.append([0,1 ])
+    X.append([8,4 ])
+    Y.append([1,0 ])
+    X.append([20,40 ])
+    Y.append([1,0 ])
+    X.append([50,100 ])
+    Y.append([1,0 ])
+    X.append([500,1000 ])
+    Y.append([1,0 ])
+    X.append([700,2000 ])
+    Y.append([0,1 ])
+    X.append([5000,2300 ])
+    Y.append([0,1 ])
+    X.append([6000,12000 ])
+    Y.append([1,0 ])
+    X.append([4000,9000 ])
+    Y.append([0,1 ])
+    X.append([100,7 ])
+    Y.append([0,1 ])
+    p.study(X,Y)
+    Yout = [ ]
+    P = [ ]
+    _classes = [ ]
+    p.predict_p_classes([[6000,3000],[10,20],[100,200],[5000,10000],[700,1400],[100, 3]], Yout, P, 0, _classes, True)
+    print "Approximated Y: ", Yout
+    print "Approximated X: ", P
+    print "Y:", Y
+    print "X:", X
+    for c in xrange(0, len(_classes)):
+      if _classes[c] != None:
+        print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
+      else:
+        print "P: ", P[c], Yout[c], "Class: None"
+    print "simpleTest PASSED"
+    return True
+
 
 def run_all_tests(_rep = True):
     mystdout = None
@@ -2096,6 +2115,11 @@ def run_all_tests(_rep = True):
       print "stockTest FAILED!"
       failed.append("stockTest FAILED!")
       all_pass = False
+    res = simpleTest()
+    if res != True:
+      print "simpleTest FAILED!"
+      failed.append("simpleTest FAILED!")
+      all_pass = False
     if rep:
       s = mystdout.getvalue()
     if all_pass == True:
@@ -2107,6 +2131,7 @@ def run_all_tests(_rep = True):
     if _rep == False:
       print s
     return s
+
 
 
 def guess_thread():
@@ -2149,6 +2174,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
       if sys.argv[1] == "guess_thread":
         guess_thread()
-    simpleTest()
-#    run_all_tests(False)
+#    simpleTest()
+#    stockTest()
+    run_all_tests(False)
     exit(0)
