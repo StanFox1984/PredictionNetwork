@@ -898,7 +898,7 @@ class NeuralLinearComposedNetwork:
               self.networks.append( ( mn, mx, NeuralLinearNetwork( self.W0 , self.num_layers, self.step, self.max_iterations, self.sp) ) )
             else:
               self.networks.append( ( mn, mx, createNetworkForNode(('', 50000), 'abc', self.W0, self.num_layers, self.step, self.max_iterations) ) )
-            print "Added network ", mn, mx, len(self.networks)-1
+#            print "Added network ", mn, mx, len(self.networks)-1
 
             self.networks[len(self.networks)-1][2].set_multipliers(self.step_multiplier, self.step_multiplier_local_opt)
             if self.parallelize == False:
@@ -952,13 +952,51 @@ class NeuralLinearComposedNetwork:
             i = n
           num_match[n] += 1 + (-0.5)*(distance[n][0]+distance[n][1])
       if i != None:
-        print "chosen network num ", num_match.index(max(num_match)), "for X ", XX
-        YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
+#        print "chosen network num ", num_match.index(max(num_match)), "for X ", XX, " of ", [ (self.networks[p], num_match[p]) for p in xrange(0,len(num_match)) ]
+        ns = [ (num_match[p],self.networks[p]) for p in xrange(0,len(num_match)) ]
+        ns=sorted(ns,reverse=True)
+#        print ns
+#c/a1 + c/a2 + c/a3 = 1
+
+#1/a1 +1/a2 + 1/a3 = 1/c
+#c = 1/(1/a1+1/a2+1/a3)
+
+        ns2 = ns[:len(ns)/8]
+#        print ns2
+        nm = sum([ 1/abs(t[0]) for t in ns2 ])
+
+        if nm != 0:
+          nm = 1/nm
+          prob_array = [ ]
+          last_prob = 0
+
+          for u in xrange(0, len(ns2)):
+            prob_array.append((last_prob, last_prob+nm/abs(ns2[u][0]),ns2[u][1][2],ns2[u]))
+            last_prob += nm/abs(ns2[u][0])
+
+          r =random.random()
+#          print prob_array
+          for u in xrange(0, len(prob_array)):
+            if r>=prob_array[u][0] and r<=prob_array[u][1]:
+              YY = prob_array[u][2].calc_y2(XX, Y, up_to)
+#              print "chosen network ",prob_array[u][2], "with probability ", prob_array[u][0], prob_array[u][1], r, prob_array[u][2]
+              break
+
+#          YY = copy.deepcopy(Y)
+#          for u in xrange(0, len(Y)):
+#            YY[u] = 0
+#            for net in ns2:
+#              net[1][2].calc_y2(XX, Y, up_to)
+#              print abs(nm/net[0]), Y[u], abs(nm/net[0])*Y[u], net, XX
+#              YY[u]+=abs(nm/net[0])*Y[u]
+        else:
+          YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
+#        YY = self.networks[num_match.index(max(num_match))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
           Y[y] = round(copy.deepcopy(YY[y]),2)
       else:
         dist = [ d[0] + d[1] for d in distance ]
-        print "chosen network num ", dist.index(min(dist)),"for X ", XX
+#        print "chosen network num ", dist.index(min(dist)),"for X ", XX
         YY = self.networks[dist.index(min(dist))][2].calc_y2(XX, Y, up_to)
         for y in  xrange(0, len(Y)):
           Y[y] = round(copy.deepcopy(YY[y]),2)
@@ -1978,35 +2016,51 @@ def simpleTest():
     p = Predictor(1, Wout, 3, step, 1000000)
     X = [ ]
     Y = [ ]
+    X.append([0,1 ])
+    Y.append([0,1 ])
+    X.append([1,1 ])
+    Y.append([0,1 ])
     X.append([1,2 ])
     Y.append([1,0 ])
-    X.append([0,1 ])
+    X.append([2,2 ])
     Y.append([0,1 ])
-    X.append([20,40 ])
+    X.append([4,2 ])
     Y.append([1,0 ])
-    X.append([0,3 ])
-    Y.append([0,1 ])
-    X.append([0,1 ])
+    X.append([3,3 ])
     Y.append([0,1 ])
     X.append([5,3 ])
     Y.append([0,1 ])
-    X.append([2,3 ])
-    Y.append([0,1 ])
-    X.append([50,100 ])
-    Y.append([1,0 ])
     X.append([8,4 ])
     Y.append([1,0 ])
-    X.append([4,2 ])
+    X.append([20,40 ])
     Y.append([1,0 ])
-    X.append([2,1 ])
+    X.append([50,100 ])
     Y.append([1,0 ])
     X.append([500,1000 ])
     Y.append([1,0 ])
+    X.append([600,1200 ])
+    Y.append([1,0 ])
+    X.append([700,2000 ])
+    Y.append([0,1 ])
+    X.append([5000,2300 ])
+    Y.append([0,1 ])
+    X.append([5000,2500 ])
+    Y.append([1,0 ])
+    X.append([6000,12000 ])
+    Y.append([1,0 ])
+    X.append([4000,9000 ])
+    Y.append([0,1 ])
+    X.append([4000,8000 ])
+    Y.append([0,1 ])
+    X.append([3000,6000 ])
+    Y.append([1,0 ])
+    X.append([100,7 ])
+    Y.append([0,1 ])
     p.study(X,Y)
     Yout = [ ]
     P = [ ]
     _classes = [ ]
-    p.predict_p_classes([[6,3]], Yout, P, 0, _classes)
+    p.predict_p_classes([[6000,3000],[10,20],[100,200],[5000,10000],[700,1400],[3500,7000],[100, 3]], Yout, P, 0, _classes, True)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
     print "Y:", Y
@@ -2016,6 +2070,19 @@ def simpleTest():
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
       else:
         print "P: ", P[c], Yout[c], "Class: None"
+
+    for c in p.classificator.clusters:
+        print str(c)
+
+    guessed = 0
+
+    for y in xrange(0, len(Yout)-1):
+      if abs(Yout[y][1])<0.1 and abs(Yout[y][0])>0.1:
+        guessed+=1
+
+    if guessed < (len(Yout)-1)/2:
+      return False
+
     print "simpleTest PASSED"
     return True
 
