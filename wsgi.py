@@ -422,16 +422,33 @@ def application(environ, start_response):
                                 "el.value = \'"+key+"\';"+\
                                 "select.appendChild(el);"
     response_body += '''<br><head><style>
-                            .button {
-                            background-color: #4CAF50; /* Green */
-                            border: none;
-                            color: white;
-                            padding: 5px 12px;
-                            text-align: center;
-                            text-decoration: none;
-                            display: inline-block;
-                            font-size: 16px;
-                            }
+.button {
+  background: #257824;
+  background-image: -webkit-linear-gradient(top, #257824, #2bb895);
+  background-image: -moz-linear-gradient(top, #257824, #2bb895);
+  background-image: -ms-linear-gradient(top, #257824, #2bb895);
+  background-image: -o-linear-gradient(top, #257824, #2bb895);
+  background-image: linear-gradient(to bottom, #257824, #2bb895);
+  -webkit-border-radius: 30;
+  -moz-border-radius: 30;
+  border-radius: 30px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  padding: 5px 10px 5px 10px;
+  border: solid #1f628d 3px;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: #3cb0fd;
+  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  text-decoration: none;
+}
                             </style></head>
                             <form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
