@@ -421,7 +421,7 @@ def application(environ, start_response):
                                 "el.textContent = \'"+key+"\';"+\
                                 "el.value = \'"+key+"\';"+\
                                 "select.appendChild(el);"
-    response_body += '''<br><style>
+    response_body += '''<br><head><style>
                             .button {
                             background-color: #4CAF50; /* Green */
                             border: none;
@@ -432,7 +432,7 @@ def application(environ, start_response):
                             display: inline-block;
                             font-size: 16px;
                             }
-                            </style>
+                            </style></head>
                             <form action="test_get" method="get" />
                             <input type="text" value="predictor_id" name="n" /><br>
                             <input type="text" value="X" name="X" />
