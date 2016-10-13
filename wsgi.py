@@ -440,7 +440,7 @@ def application(environ, start_response):
                             </select>
                             <button type="button" class="button" name="add_to_x" onclick="fill_x_with_alias()">Add to X</button><br>
                             <input type="text" value="Y" name="Y" />
-                            <button type="button" name="add_to_y" onclick="fill_y_with_alias()">Add to Y</button><br>
+                            <button type="button" class="button" name="add_to_y" onclick="fill_y_with_alias()">Add to Y</button><br>
                             <input type="text" value="depth" name="depth" /><br>
                             <input type="text" value="alias_key" name="alias_key" /><br>
                             <input type="text" value="alias_value" name="alias_value" /><br>
@@ -449,24 +449,24 @@ def application(environ, start_response):
                             <input type="text" value="points_per_network" name="points_per_network" /><br>
                             <input type="text" value="num_layers" name="num_layers" /><br>
                             <input type="text" value="max_iterations" name="max_iterations" /><br>
-                            <input type="submit" value="predict_study" name="predict_study" /><br>
-                            <input type="submit" value="predict_study_from_link" name="predict_study_from_link" />
+                            <input type="submit" value="predict_study" class="button" name="predict_study" /><br>
+                            <input type="submit" value="predict_study_from_link" class="button" name="predict_study_from_link" />
                             X:<input type="text" value="" name="predict_study_link_x" />
                             Y:<input type="text" value="" name="predict_study_link_y" /><br>
-                            <input type="submit" value="predict_create" name="predict_create" />
+                            <input type="submit" value="predict_create" class="button" name="predict_create" />
                             Include weather sample aliases
                             <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias">
                             Include stock sample aliases
                             <input type="checkbox" name="stock_sample_alias" value="stock_sample_alias"><br>
-                            <input type="submit" value="predict_set_alias" name="predict_set_alias" /><br>
-                            <input type="submit" value="predict" name="predict" /><br>
-                            <input type="submit" value="predict_remove" name="predict_remove" /><br>
-                            <input type="submit" value="predict_remove_all" name="predict_remove_all" /><br>
-                            <input type="submit" value="predict_list" name="predict_list" /><br>
-                            <input type="submit" value="predict_run_tests" name="predict_run_tests" />
+                            <input type="submit" value="predict_set_alias" class="button" name="predict_set_alias" /><br>
+                            <input type="submit" value="predict" class="button" name="predict" /><br>
+                            <input type="submit" value="predict_remove" class="button" name="predict_remove" /><br>
+                            <input type="submit" value="predict_remove_all" class="button" name="predict_remove_all" /><br>
+                            <input type="submit" value="predict_list" class="button" name="predict_list" /><br>
+                            <input type="submit" value="predict_run_tests" class="button"  name="predict_run_tests" />
                             </form>
                             Neural network dimensions: <br><input type="text" value="2" name="dimensions" /><br>
-                            <button name="fill_for_create" onclick="fill_def_values_create()">Fill_for_create</button><br>
+                            <button name="fill_for_create" class="button" onclick="fill_def_values_create()">Fill_for_create</button><br>
                             <script>
                               function fill_def_values_create()
                               {
