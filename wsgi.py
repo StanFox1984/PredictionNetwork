@@ -438,7 +438,7 @@ def application(environ, start_response):
                             <input type="text" value="X" name="X" />
                             <select id="aliases">
                             </select>
-                            <button type="button" name="add_to_x" onclick="fill_x_with_alias()">Add to X</button><br>
+                            <button type="button" class="button" name="add_to_x" onclick="fill_x_with_alias()">Add to X</button><br>
                             <input type="text" value="Y" name="Y" />
                             <button type="button" name="add_to_y" onclick="fill_y_with_alias()">Add to Y</button><br>
                             <input type="text" value="depth" name="depth" /><br>
