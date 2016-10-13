@@ -434,7 +434,7 @@ def application(environ, start_response):
   border-radius: 30px;
   font-family: Arial;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 14px;
   padding: 5px 10px 5px 10px;
   border: solid #1f628d 3px;
   text-decoration: none;
