@@ -1977,8 +1977,8 @@ def stockTest():
     p.predict_p_classes([ ["NASDAQ_DOWN", "DOW_DOWN", "S&P_DOWN", "NYSE_DOWN"] ], Yout, P, 5, _classes)
     print "Approximated Y: ", Yout
     print "Approximated X: ", P
-    print "Y:", Y
-    print "X:", X
+    print "Y:", Y[2:]
+    print "X:", X[2:]
     for c in xrange(0, len(_classes)):
       if _classes[c] != None:
         print "P: ", P[c], Yout[c], "Class: ", _classes[c], _classes[c].vec
