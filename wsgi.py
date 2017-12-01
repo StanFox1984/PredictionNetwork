@@ -5,19 +5,12 @@ from random import randint
 from predict import run_all_tests
 from predict import Predictor
 from cgi import parse_qs
-virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
-virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
-try:
-    execfile(virtualenv, dict(__file__=virtualenv))
-except IOError:
-    pass
 
 from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
 import json
 import pickle
 import urllib
-import urllib2
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -49,7 +42,7 @@ class PredictorAllocator:
       try:
         return self.predictor_array[n]
       except KeyError:
-        print "No such predictor with id ", n
+        print ("No such predictor with id {0}", n)
         return None
     def deallocate(self, n):
       del self.predictor_array[n]
@@ -96,7 +89,7 @@ def handle_predict_create(environ, predictorAllocator):
     d = parse_qs(s1)
 #       s += str(d)
 #       s += d["W"][0]
-    print d
+#    print d
     Wout = eval(d["W"][0])
     step = eval(d["step"][0])
     n = predictorAllocator.allocate(int(d["points_per_network"][0]), Wout, int(d["num_layers"][0]), step, int(d["max_iterations"][0]))
@@ -184,13 +177,13 @@ def handle_predict_study_from_link(environ, predictorAllocator):
       request = urllib2.Request(d["predict_study_link_x"][0])
       response = urllib2.urlopen(request)
       page = response.read()
-      print "X from page:", page
+#      print "X from page:", page
       X = eval(page)
       request = urllib2.Request(d["predict_study_link_y"][0])
       response = urllib2.urlopen(request)
       page = response.read()
       Y = eval(page)
-      print "Y from page:", page
+#      print "Y from page:", page
     n = eval(d["n"][0])
     p = predictorAllocator.getPredictor(n)
     if p != None:
@@ -214,10 +207,10 @@ def handle_predict_set_alias(environ, predictorAllocator):
 #   s += str(d)
 #   s += d["W"][0]
     n = eval(d["n"][0])
-    print d
+#    print d
     alias_key = (d["alias_key"][0])
     alias_value = (d["alias_value"][0])
-    print alias_key, alias_value
+#    print alias_key, alias_value
     key = alias_key
     value = alias_value
     p = predictorAllocator.getPredictor(n)
@@ -347,7 +340,7 @@ def application(environ, start_response):
         s1 = environ['QUERY_STRING']
         s1 = s1.replace("%20"," ")
         d = parse_qs(s1)
-        print d
+#        print d
         c = 0
         if "predict_list" in d:
             response_body = handle_predict_list(environ, predictorAllocator)
@@ -574,7 +567,7 @@ class MyAppClass:
     def __init__(self):
       self.predictorAllocator = None
     def __call__(self, environ, start_response):
-      print "me: ", self, self.predictorAllocator
+#      print "me: ", self, self.predictorAllocator
       return applicatio(self.predictorAllocator, environ, start_response)
 
 
@@ -586,9 +579,9 @@ if __name__ == '__main__':
     global pmanager
     global application
     from wsgiref.simple_server import make_server
-    print "aaaaaa"
+#    print "aaaaaa"
     httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
-    print "app: ", application.predictorAllocator
-    print "app: ", application
+#    print "app: ", application.predictorAllocator
+#    print "app: ", application
     # Wait for a single request, serve it and quit.
     httpd.serve_forever()

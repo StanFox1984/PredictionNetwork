@@ -15,25 +15,25 @@ class PoolThread:
         self.ready_sema     = Semaphore(0)
         self.ready          = True
     def run(self):
-#        print "acquire"
+#        print ( "acquire" )
         while self.is_running:
-#            print "acquire"
+#            print ( "acquire" )
             self.sema.acquire()
             with self.lock:
                 if not self.is_running:
                     break
-                print "task %d" % self.thread_id
+                print ( "task %d" % self.thread_id )
                 (task, args) = self.task_queue.pop()
             #with self.lock:
-#            print args
+#            print ( args )
             task(*args)
             with self.lock:
-#                print "%d: %d" % (self.thread_id,len(self.task_queue))
+#                print ( "%d: %d" % (self.thread_id,len(self.task_queue)) )
                 if len(self.task_queue) == 0:
                     self.ready_sema.release()
                     self.ready = True
-#                    print "%d finished" % self.thread_id
-#        print "exit"
+#                    print ( "%d finished" % self.thread_id )
+#        print ( "exit" )
         self.sema.acquire(False)
     def start(self):
         with self.lock:
@@ -56,13 +56,13 @@ class PoolThread:
         with self.lock:
             return self.is_running
     def wait_ready(self,block = True):
-#        print "%d:wait_ready1"% self.thread_id
+#        print ( "%d:wait_ready1"% self.thread_id )
         if not self.ready:
             if block:
                 self.ready_sema.acquire()
             else:
                 return False
-#        print "wait_ready2"
+#        print ( "wait_ready2" )
         return True
     def __len__(self):
         with self.lock:
@@ -95,14 +95,14 @@ def func(i):
     for j in i:
         if j[0] & 1:
             time.sleep(1)
-            print j[0]
+            print ( j[0] )
         j[1][j[0]]*=2
 
 class T:
     def __init__(self, N):
       self.N = N
     def pr(self):
-      print self.N
+      print ( self.N )
 
 if __name__ == "__main__":
     THREAD_NUM = 100
@@ -116,5 +116,5 @@ if __name__ == "__main__":
     POOL.enqueue_task(T.pr, T(5))
     POOL.enqueue_task(T.pr, T(5))
     POOL.wait_ready()
-#    print LST
+#    print ( LST )
     POOL.stop()
