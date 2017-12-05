@@ -5,19 +5,21 @@ from random import randint
 from predict import run_all_tests
 from predict import Predictor
 from cgi import parse_qs
+import sys
 
 from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
 import json
 import pickle
 import urllib
+import urllib.request
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
 #
 
 #datadir         = os.environ['OPENSHIFT_DATA_DIR']
-datadir = "~"
+datadir = "./"
 datafile_path   = datadir + "myfile"
 
 class PredictorAllocator:
@@ -178,13 +180,13 @@ def handle_predict_study_from_link(environ, predictorAllocator):
     X = [ ]
     Y = [ ]
     if "predict_study_link_x" in d and "predict_study_link_y" in d:
-      request = urllib2.Request(d["predict_study_link_x"][0])
-      response = urllib2.urlopen(request)
+      request = urllib.request.Request(d["predict_study_link_x"][0])
+      response = urllib.request.urlopen(request)
       page = response.read()
 #      print "X from page:", page
       X = eval(page)
-      request = urllib2.Request(d["predict_study_link_y"][0])
-      response = urllib2.urlopen(request)
+      request = urllib.request.Request(d["predict_study_link_y"][0])
+      response = urllib.request.urlopen(request)
       page = response.read()
       Y = eval(page)
 #      print "Y from page:", page
@@ -386,14 +388,21 @@ def application(environ, start_response):
                     for key, value in sorted(environ.items())]
         response_body = '\n'.join(response_body)
     elif environ['PATH_INFO'] == '/X_Input':
-        f = open(os.environ['OPENSHIFT_DATA_DIR']+"X_Input", "rb")
+        f = open(datadir+"X_Input", "rb")
         fl = f.read()
         response_body = fl
         status = '200 OK'
         response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
         start_response(status, response_headers)
         return [ response_body ]
-
+    elif environ['PATH_INFO'] == '/Y_Input':
+        f = open(datadir+"Y_Input", "rb")
+        fl = f.read()
+        response_body = fl
+        status = '200 OK'
+        response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
+        start_response(status, response_headers)
+        return [ response_body ]
     query_dict = parse_qs(environ['QUERY_STRING'])
     if "n" in query_dict:
         if query_dict["n"][0] != "predictor_id":
@@ -554,9 +563,7 @@ def application(environ, start_response):
     #
     start_response(status, response_headers)
     predictorAllocator.save_to_file()
-    print ("Before", type(response_body))
     if type(response_body) == str:
-        print ("Here")
         return [ response_body.encode("utf-8") ]
     return response_body
 
@@ -566,10 +573,7 @@ class MyHandler(SimpleHandler):
   def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
     SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
 
-
 from time import sleep
-
-
 
 
 class MyAppClass:
@@ -589,7 +593,7 @@ if __name__ == '__main__':
 #    global application
     from wsgiref.simple_server import make_server
 #    print "aaaaaa"
-    httpd = make_server('localhost', 8051, application)
+    httpd = make_server('localhost', int(sys.argv[1]), application)
 #    print "app: ", application.predictorAllocator
 #    print "app: ", application
     # Wait for a single request, serve it and quit.
