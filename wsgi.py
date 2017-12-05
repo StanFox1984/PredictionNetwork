@@ -16,6 +16,10 @@ import urllib
 # line, it's possible required libraries won't be in your searchable path
 #
 
+#datadir         = os.environ['OPENSHIFT_DATA_DIR']
+datadir = "~"
+datafile_path   = datadir + "myfile"
+
 class PredictorAllocator:
     def __init__(self, n1=0, n2=100):
       self.predictor_array = {}
@@ -28,12 +32,12 @@ class PredictorAllocator:
       self.predictor_array[n] = Predictor(points_per_network, W, num_layers, step, max_iterations)
       return n
     def load_from_file(self):
-      if os.path.isfile(os.environ['OPENSHIFT_DATA_DIR']+"myfile"):
-        f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'rb')
+      if os.path.isfile(datafile_path):
+        f = open(datafile_path,'rb')
         self.predictor_array = pickle.load(f)
         f.close()
     def save_to_file(self):
-      f = open(os.environ['OPENSHIFT_DATA_DIR']+"myfile",'wb')
+      f = open(datafile_path,'wb')
       pickle.dump(self.predictor_array, f)
       f.close() # you can omit in most cases as the de
     def getArray(self):
@@ -388,7 +392,7 @@ def application(environ, start_response):
         status = '200 OK'
         response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
         start_response(status, response_headers)
-        return [response_body]
+        return [ response_body ]
 
     query_dict = parse_qs(environ['QUERY_STRING'])
     if "n" in query_dict:
@@ -545,11 +549,16 @@ def application(environ, start_response):
                             '''+select_s+\
                             "</script>"
     status = '200 OK'
+    ctype += ";charset=utf-8"
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
     #
     start_response(status, response_headers)
     predictorAllocator.save_to_file()
-    return [response_body]
+    print ("Before", type(response_body))
+    if type(response_body) == str:
+        print ("Here")
+        return [ response_body.encode("utf-8") ]
+    return response_body
 
 from wsgiref.handlers import SimpleHandler
 
@@ -576,11 +585,11 @@ class MyAppClass:
 #
 if __name__ == '__main__':
     global predictorAllocator
-    global pmanager
-    global application
+#    global pmanager
+#    global application
     from wsgiref.simple_server import make_server
 #    print "aaaaaa"
-    httpd = make_server('localhost', 8051, application, handler_class = MyHandler)
+    httpd = make_server('localhost', 8051, application)
 #    print "app: ", application.predictorAllocator
 #    print "app: ", application
     # Wait for a single request, serve it and quit.
