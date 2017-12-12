@@ -64,6 +64,14 @@ class PredictorManager(BaseManager):
 pmanager = None
 predictorAllocator = PredictorAllocator(0,100)
 
+class ClientState:
+    def __init__(self):
+        self.state = "DEFAULT"
+        self.current_predictor_id = 0
+
+client_id_to_state_dict = { }
+last_client_id = 0
+
 def handle_predict_list(environ, predictorAllocator):
     s = ""
     s1 = ""
@@ -303,7 +311,6 @@ def handle_predict_remove_all(environ, predictorAllocator):
   response_body = '<html><body style="background-color:powderblue;">' + s + '</body></html>'
   return response_body
 
-
 def handle_run_tests(environ):
   s = ""
   s += predict.run_all_tests()
@@ -317,11 +324,12 @@ def handle_run_tests(environ):
 
 def application(environ, start_response):
     global s
+
+    client_state = ClientState()
     ctype = 'text/html'
     s = ""
     s1 = ""
     response_body = ""
-#    s += str(predictorAllocator)
     predictorAllocator.load_from_file()
 
     aliases = None
@@ -416,7 +424,7 @@ def application(environ, start_response):
         aliases = p.get_aliases()
 
     ctype = 'text/html'
-#        response_body = '<html><body>' + s + '</body></html>'
+
     if len(response_body) == 0:
       response_body = '<html><body style="background-color:powderblue;">' + '</body></html>'
     select_s = '''                  select = document.getElementById("aliases");
@@ -427,136 +435,24 @@ def application(environ, start_response):
                                 "el.textContent = \'"+key+"\';"+\
                                 "el.value = \'"+key+"\';"+\
                                 "select.appendChild(el);"
-    response_body += '''<br><head><style>
-.button {
-  background: #257824;
-  background-image: -webkit-linear-gradient(top, #257824, #2bb895);
-  background-image: -moz-linear-gradient(top, #257824, #2bb895);
-  background-image: -ms-linear-gradient(top, #257824, #2bb895);
-  background-image: -o-linear-gradient(top, #257824, #2bb895);
-  background-image: linear-gradient(to bottom, #257824, #2bb895);
-  -webkit-border-radius: 30;
-  -moz-border-radius: 30;
-  border-radius: 30px;
-  font-family: Arial;
-  color: #ffffff;
-  font-size: 14px;
-  padding: 5px 10px 5px 10px;
-  border: solid #1f628d 3px;
-  text-decoration: none;
-}
 
-.button:hover {
-  background: #3cb0fd;
-  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-  text-decoration: none;
-}
-                            </style></head>
-                            <form action="test_get" method="get" />
-                            <input type="text" value="predictor_id" name="n" /><br>
-                            <input type="text" value="X" name="X" />
-                            <select id="aliases">
-                            </select>
-                            <button type="button" class="button" name="add_to_x" onclick="fill_x_with_alias()">Add to X</button>
-                            <button type="button" class="button" name="add_to_y" onclick="fill_y_with_alias()">Add to Y</button><br>
-                            <input type="text" value="Y" name="Y" /><br>
-                            <input type="text" value="depth" name="depth" /><br>
-                            <input type="text" value="alias_key" name="alias_key" /><br>
-                            <input type="text" value="alias_value" name="alias_value" /><br>
-                            <input type="text" value="W" name="W" /><br>
-                            <input type="text" value="step" name="step" /><br>
-                            <input type="text" value="points_per_network" name="points_per_network" /><br>
-                            <input type="text" value="num_layers" name="num_layers" /><br>
-                            <input type="text" value="max_iterations" name="max_iterations" /><br>
-                            <input type="submit" value="predict_study" class="button" name="predict_study" /><br>
-                            <input type="submit" value="predict_study_from_link" class="button" name="predict_study_from_link" />
-                            X:<input type="text" value="" name="predict_study_link_x" />
-                            Y:<input type="text" value="" name="predict_study_link_y" /><br>
-                            <input type="submit" value="predict_create" class="button" name="predict_create" />
-                            Include weather sample aliases
-                            <input type="checkbox" name="weather_sample_alias" value="weather_sample_alias">
-                            Include stock sample aliases
-                            <input type="checkbox" name="stock_sample_alias" value="stock_sample_alias"><br>
-                            <input type="submit" value="predict_set_alias" class="button" name="predict_set_alias" /><br>
-                            <input type="submit" value="predict" class="button" name="predict" /><br>
-                            <input type="submit" value="predict_remove" class="button" name="predict_remove" /><br>
-                            <input type="submit" value="predict_remove_all" class="button" name="predict_remove_all" /><br>
-                            <input type="submit" value="predict_list" class="button" name="predict_list" /><br>
-                            <input type="submit" value="predict_run_tests" class="button"  name="predict_run_tests" />
-                            </form>
-                            Neural network dimensions: <br><input type="text" value="2" name="dimensions" /><br>
-                            <button name="fill_for_create" class="button" onclick="fill_def_values_create()">Fill_for_create</button><br>
-                            <script>
-                              function fill_def_values_create()
-                              {
-//                                alert(document.getElementsByName("dimensions")[0].value);
-                                  var dimensions = parseInt(document.getElementsByName("dimensions")[0].value);
-                                  var W = "[ ";
-                                  var step = "[ ";
-                                  for (i=0;i<dimensions;i++)
-                                  {
-                                      if( i < (dimensions - 1) )
-                                      {
-                                        W += "1.0, ";
-                                        step += "0.1, ";
-                                      }
-                                      else
-                                      {
-                                        W += "1.0";
-                                        step += "0.1";
-                                      }
-                                  }
-                                  W += " ] ";
-                                  step += " ] ";
-//                                alert(W);
-                                  document.getElementsByName("W")[0].value = W;
-                                  document.getElementsByName("num_layers")[0].value = "3";
-                                  document.getElementsByName("max_iterations")[0].value = "1000000";
-                                  document.getElementsByName("points_per_network")[0].value = "2";
-                                  document.getElementsByName("step")[0].value = step;
-                              }
-                              function fill_x_with_alias()
-                              {
-                                  select = document.getElementById("aliases");
-                                  var s = select.options[select.selectedIndex].value;
-//                                  alert(s)
-                                  var X = document.getElementsByName("X")[0].value;
-                                  if ((X.length == 0) || (X == "X"))
-                                  {
-                                    X = "[["
-                                    X = X + "\'"+s+"\']]";
-                                  }
-                                  else
-                                  {
-                                    X = X.replace("]]","");
-                                    X = X + "," + "\'"+s+"\']]";
-                                  }
-                                  document.getElementsByName("X")[0].value = X;
-                              }
-                              function fill_y_with_alias()
-                              {
-                                  select = document.getElementById("aliases");
-                                  var s = select.options[select.selectedIndex].value;
-//                                  alert(s)
-                                  var Y = document.getElementsByName("Y")[0].value;
-                                  if ((Y.length == 0) || (Y == "Y"))
-                                  {
-                                    Y = "[["
-                                    Y = Y + "\'"+s+"\']]";
-                                  }
-                                  else
-                                  {
-                                    Y = Y.replace("]]","");
-                                    Y = Y + "," + "\'"+s+"\']]";
-                                  }
-                                  document.getElementsByName("Y")[0].value = Y;
-                              }
-                            '''+select_s+\
-                            "</script>"
+    if client_state.state == "DEFAULT":
+        with open('MainView.htm') as f:
+            read_data = f.read()
+    if client_state.state == "STUDY":
+        with open('MainViewStudy.htm') as f:
+            read_data = f.read()
+    if client_state.state == "PREDICT":
+        with open('MainViewPredict.htm') as f:
+            read_data = f.read()
+    if client_state.state == "CREATE":
+        with open('MainViewCreate.htm') as f:
+            read_data = f.read()
+    if client_state.state == "SETALIAS":
+        with open('MainViewSetAlias.htm') as f:
+            read_data = f.read()
+
+    response_body += read_data + select_s + "</script>"
     status = '200 OK'
     ctype += ";charset=utf-8"
     response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
@@ -567,34 +463,7 @@ def application(environ, start_response):
         return [ response_body.encode("utf-8") ]
     return response_body
 
-from wsgiref.handlers import SimpleHandler
-
-class MyHandler(SimpleHandler):
-  def __init__(self, stdin, stdout, stderr, environ, multithread=False, multiprocess=False):
-    SimpleHandler.__init__(self, stdin, stdout, stderr, environ, multithread, multiprocess)
-
-from time import sleep
-
-
-class MyAppClass:
-    def __init__(self):
-      self.predictorAllocator = None
-    def __call__(self, environ, start_response):
-#      print "me: ", self, self.predictorAllocator
-      return applicatio(self.predictorAllocator, environ, start_response)
-
-
-#
-# Below for testing only
-#
 if __name__ == '__main__':
-    global predictorAllocator
-#    global pmanager
-#    global application
     from wsgiref.simple_server import make_server
-#    print "aaaaaa"
     httpd = make_server('localhost', int(sys.argv[1]), application)
-#    print "app: ", application.predictorAllocator
-#    print "app: ", application
-    # Wait for a single request, serve it and quit.
     httpd.serve_forever()
