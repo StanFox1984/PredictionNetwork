@@ -6,6 +6,7 @@ from predict import run_all_tests
 from predict import Predictor
 from cgi import parse_qs
 import sys
+import difflib
 
 from multiprocessing.managers import BaseManager
 from multiprocessing import Process, Queue
@@ -13,6 +14,8 @@ import json
 import pickle
 import urllib
 import urllib.request
+import http
+import http.cookies
 #
 # IMPORTANT: Put any additional includes below this line.  If placed above this
 # line, it's possible required libraries won't be in your searchable path
@@ -324,14 +327,48 @@ def handle_run_tests(environ):
 
 def application(environ, start_response):
     global s
+    global last_client_id
+    global client_id_to_state_dict
+    cur_client_id = 0
 
-    client_state = ClientState()
+
+    client_state = None
+    if 'HTTP_COOKIE' in environ:
+        s1 = environ['HTTP_COOKIE']
+        print ("Got cookie:", s1)
+        s1 = s1.replace("%20"," ")
+#        d = parse_qs(s1)
+        d = { }
+        l = difflib.get_close_matches("last_client_id", s1.replace(" ", "").split(";"))[0].split("=")
+        d[l[0]] = l[1]
+        print (d)
+        if not "last_client_id" in d:
+            cur_client_id = last_client_id
+            last_client_id += 1
+            print ("New client!", cur_client_id)
+            client_state = ClientState()
+            client_id_to_state_dict[str(cur_client_id)] = client_state
+        else:
+            cur_client_id = int(d["last_client_id"])
+            print ("Known client! ", cur_client_id)
+            print (client_id_to_state_dict)
+            if not str(cur_client_id) in client_id_to_state_dict:
+                print ("Not found(bug?)")
+                client_state = ClientState()
+                client_id_to_state_dict[str(cur_client_id)] = client_state
+            client_state = client_id_to_state_dict[str(cur_client_id)]
+            print ("Client state: %s Predictor id %d" % (client_state.state, client_state.current_predictor_id))
+    else:
+        cur_client_id = last_client_id
+        last_client_id += 1
+        print ("New client!", cur_client_id)
+        client_state = ClientState()
+        client_id_to_state_dict[str(cur_client_id)] = client_state
     ctype = 'text/html'
     s = ""
     s1 = ""
     response_body = ""
     predictorAllocator.load_from_file()
-
     aliases = None
     n = None
     if environ['PATH_INFO'] == '/tests':
@@ -361,6 +398,7 @@ def application(environ, start_response):
             c = 1
         if "predict_create" in d:
             n = handle_predict_create(environ, predictorAllocator)
+            client_state.state = "SETALIAS"
             _s = ""
             _s+=" Predictor created "+ str(n)+"\n"
             ctype = 'text/html'
@@ -370,13 +408,18 @@ def application(environ, start_response):
             c = 1
         if "predict_study" in d:
             response_body = handle_predict_study(environ, predictorAllocator)
+            client_state.state = "PREDICT"
             c = 1
         if "predict_study_from_link" in d:
             response_body = handle_predict_study_from_link(environ, predictorAllocator)
+            client_state.state = "PREDICT"
             c = 1
         if "predict" in d:
             response_body = handle_predict(environ, predictorAllocator)
             c = 1
+        if "home" in d:
+            response_body = ""
+            client_state.state = "DEFAULT"
         if "predict_remove" in d:
             response_body = handle_predict_remove(environ, predictorAllocator)
             c = 1
@@ -385,6 +428,7 @@ def application(environ, start_response):
             c = 1
         if "predict_set_alias" in d:
             response_body = handle_predict_set_alias(environ, predictorAllocator)
+            client_state.state = "STUDY"
             c = 1
         if "predict_run_tests" in d:
             response_body = handle_run_tests(environ)
@@ -416,9 +460,11 @@ def application(environ, start_response):
         if query_dict["n"][0] != "predictor_id":
           p = predictorAllocator.getPredictor(int(query_dict["n"][0]))
           if p != None:
+            client_state.current_predictor_id = int(query_dict["n"][0])
             aliases = p.get_aliases()
 
     if n != None:
+      client_state.current_predictor_id = n
       p = predictorAllocator.getPredictor(n)
       if p != None:
         aliases = p.get_aliases()
@@ -455,7 +501,7 @@ def application(environ, start_response):
     response_body += read_data + select_s + "</script>"
     status = '200 OK'
     ctype += ";charset=utf-8"
-    response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body)))]
+    response_headers = [('Content-Type', ctype), ('Content-Length', str(len(response_body))), ('Set-Cookie', "last_client_id=" + str(cur_client_id))]
     #
     start_response(status, response_headers)
     predictorAllocator.save_to_file()
